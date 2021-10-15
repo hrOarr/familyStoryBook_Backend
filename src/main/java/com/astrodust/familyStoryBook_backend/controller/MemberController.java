@@ -70,6 +70,9 @@ public class MemberController {
 			MemberDTO memberDTO = converter.memberToMemDTO(account);
 			return ResponseEntity.ok(memberDTO);
 		}
+		catch (ResourceNotFoundException e){
+			throw new ResourceNotFoundException(e.getLocalizedMessage());
+		}
 		catch (Exception e){
 			logger.info("SoA:: exception from getRootByFid() method---------------->", e);
 			throw new Exception("Something went wrong. Please try again");
@@ -101,6 +104,9 @@ public class MemberController {
 				throw new ResourceNotFoundException("Resource Not Found");
 			}
 			return ResponseEntity.ok(converter.memberToMemberInfoGeneralDTO(memberAccount));
+		}
+		catch (ResourceNotFoundException e){
+			throw new ResourceNotFoundException(e.getLocalizedMessage());
 		}
 		catch (Exception e){
 			logger.info("SoA:: exception from edit() method---------------->", e);

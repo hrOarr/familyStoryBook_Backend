@@ -59,7 +59,7 @@ public class EducationController {
 	}
 
 	@ApiOperation(value = "Get A Education for update")
-	@GetMapping(value = "/update/{id}")
+	@GetMapping(value = "/edit/{id}")
 	public ResponseEntity<?> edit(@PathVariable int id) throws Exception {
 		try {
 			MemberEducation memberEducation = educationService.getById(id);
@@ -67,6 +67,9 @@ public class EducationController {
 				throw new ResourceNotFoundException("Resource Not Found");
 			}
 			return ResponseEntity.ok(memberEducation);
+		}
+		catch (ResourceNotFoundException e){
+			throw new ResourceNotFoundException(e.getLocalizedMessage());
 		}
 		catch (Exception e){
 			logger.info("SoA:: exception from edit() method---------------->", e);

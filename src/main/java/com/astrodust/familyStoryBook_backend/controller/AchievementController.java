@@ -21,7 +21,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,7 +43,7 @@ public class AchievementController {
 
     @ApiOperation(value = "Save Achievement List")
     @PostMapping(value = "/save/{memberId}", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
-    public ResponseEntity<?> save(@RequestParam("data") String str, @RequestPart("image") MultipartFile image,
+    public ResponseEntity<?> save(@RequestParam("data") String str, @RequestPart(name = "image", required = false) MultipartFile image,
                                   @PathVariable(name = "memberId") int memberId) throws Exception {
         try {
             InsertAchievementDTO insertAchievementDTO = new ObjectMapper().readValue(str, InsertAchievementDTO.class);
@@ -88,7 +87,7 @@ public class AchievementController {
 
     @ApiOperation(value = "Update Single One")
     @PostMapping(value = "/update/{memberId}", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
-    public ResponseEntity<?> update(@RequestParam("data") String str, @RequestPart("image") MultipartFile image,
+    public ResponseEntity<?> update(@RequestParam("data") String str, @RequestPart(name = "image", required = false) MultipartFile image,
                                     @PathVariable(name = "memberId") int memberId) throws Exception {
         try {
             UpdateAchievementDTO updateAchievementDTO = new ObjectMapper().readValue(str, UpdateAchievementDTO.class);

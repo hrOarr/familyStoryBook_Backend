@@ -36,4 +36,14 @@ public class FamilyServiceImp implements FamilyService {
 		return familyDao.getByEmail(email);
 	}
 
+	@Override
+	public FamilyAccount getByUsername(String username) {
+		return familyDao.getByUsername(username);
+	}
+
+	@Override
+	public int deleteById(int id) {
+		return familyDao.deleteById(id);
+	}
+
 }

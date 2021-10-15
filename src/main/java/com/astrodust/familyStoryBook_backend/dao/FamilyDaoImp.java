@@ -55,4 +55,26 @@ public class FamilyDaoImp implements FamilyDao {
 		return accounts.get(0);
 	}
 
+	@Override
+	@SuppressWarnings("unchecked")
+	public FamilyAccount getByUsername(String username) {
+		Session session = sessionFactory.getCurrentSession();
+		String hql = "FROM FamilyAccount fa WHERE fa.username =: username";
+		Query query = session.createQuery(hql);
+		query.setParameter("username", username);
+		List<FamilyAccount> accounts = query.getResultList();
+		if(accounts==null || accounts.isEmpty()) {
+			return null;
+		}
+		return accounts.get(0);
+	}
+
+	@Override
+	public int deleteById(int id) {
+		Session session = sessionFactory.getCurrentSession();
+		String hql = "DELETE FROM FamilyAccount fa WHERE fa.id=:id";
+		Query query = session.createQuery(hql);
+		query.setParameter("id", id);
+		return query.executeUpdate();
+	}
 }

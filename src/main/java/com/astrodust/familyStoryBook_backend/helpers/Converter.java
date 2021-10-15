@@ -41,10 +41,10 @@ public class Converter {
 		}
 		
 		if(account.getId()<=0) { // insertion
-			account.setCreatedDate(Calendar.getInstance());
+			account.setCreatedDate(LocalDateTime.now());
 		}
 		else { // updation
-			account.setUpdatedDate(Calendar.getInstance());
+			account.setUpdatedDate(LocalDateTime.now());
 		}
 		
 		familyAccount.getMemberAccounts().add(account);
@@ -71,11 +71,11 @@ public class Converter {
 		logger.info("Converter eventDTOtoEvent() method init->>>>>>>>>>>>>>>");
 		Event event = modelMapper.map(eventDTO, Event.class);
 		if(eventDTO.getId()<=0) { // insertion
-			event.setCreatedDate(Calendar.getInstance());
+			event.setCreatedDate(LocalDateTime.now());
 			event.setFamilyAccount(familyAccount);
 		}
 		else { // updation
-			event.setUpdatedDate(Calendar.getInstance());
+			event.setUpdatedDate(LocalDateTime.now());
 			event.setFamilyAccount(familyAccount);
 		}
 		return event;
@@ -117,8 +117,8 @@ public class Converter {
 		List<Integer> ids = memberInsertJobDTO.getId();
 		List<String> companyNames = memberInsertJobDTO.getCompanyName();
 		List<String> jobRoles = memberInsertJobDTO.getJobRole();
-		List<Calendar> joinDates = memberInsertJobDTO.getJoinDate();
-		List<Calendar> endDates = memberInsertJobDTO.getEndDate();
+		List<LocalDateTime> joinDates = memberInsertJobDTO.getJoinDate();
+		List<LocalDateTime> endDates = memberInsertJobDTO.getEndDate();
 
 		for(int i=0;i<companyNames.size();i++){
 			MemberJob memberJob = new MemberJob();
@@ -224,7 +224,7 @@ public class Converter {
 		// desc
 		document.setDescription(insertDocumentDTO.getDescription());
 		// addedDate
-		document.setAddedDate(Calendar.getInstance());
+		document.setAddedDate(LocalDateTime.now());
 		// familyAccount
 		document.setFamilyAccount(familyAccount);
 		// images

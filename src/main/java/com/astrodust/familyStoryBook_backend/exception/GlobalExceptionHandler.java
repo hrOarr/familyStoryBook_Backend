@@ -33,6 +33,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler{
         return new ResponseEntity(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler({ValidationException.class, ResourceNotFoundException.class})
+    public ResponseEntity<Object> handleValidationException(Exception ex, WebRequest request) {
+        logger.info("ValidationException->method starts------------->");
+        List<String> errors = new ArrayList<>();
+        errors.add(ex.getLocalizedMessage());
+        ErrorResponse errorResponse = new ErrorResponse("Validation Failed", errors, LocalDateTime.now());
+        return new ResponseEntity<Object>(errorResponse, new HttpHeaders(), HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler({Exception.class})
     public ResponseEntity<Object> handleAllExceptions(Exception ex, WebRequest webRequest){
         logger.info("handleAllExceptions--------------->");
@@ -46,15 +55,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler{
     public ResponseEntity<Object> handleAccessDeniedException(Exception e, WebRequest request) {
         logger.info("AccessDeniedException->method starts------------->");
         return new ResponseEntity<Object>("Access is denied", new HttpHeaders(), HttpStatus.FORBIDDEN);
-    }
-
-    @ExceptionHandler({ValidationException.class, ResourceNotFoundException.class})
-    public ResponseEntity<Object> handleValidationException(Exception ex, WebRequest request) {
-        logger.info("ValidationException->method starts------------->");
-        List<String> errors = new ArrayList<>();
-        errors.add(ex.getLocalizedMessage());
-        ErrorResponse errorResponse = new ErrorResponse("Validation Failed", errors, LocalDateTime.now());
-        return new ResponseEntity<Object>(errorResponse, new HttpHeaders(), HttpStatus.BAD_REQUEST);
     }
 
     @Override

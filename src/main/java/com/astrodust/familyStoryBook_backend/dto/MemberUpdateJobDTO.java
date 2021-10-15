@@ -9,6 +9,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import java.util.Calendar;
 
 @Data
@@ -25,11 +26,9 @@ public class MemberUpdateJobDTO {
     private String jobRole;
 
     @NotNull(message = "Start-Date is required")
-    @Temporal(TemporalType.DATE)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
-    private Calendar joinDate;
+    private LocalDateTime joinDate;
 
-    @Temporal(TemporalType.DATE)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
-    private Calendar endDate;
+    private LocalDateTime endDate;
 }

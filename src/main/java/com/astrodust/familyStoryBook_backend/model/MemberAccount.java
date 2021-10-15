@@ -1,5 +1,6 @@
 package com.astrodust.familyStoryBook_backend.model;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashSet;
@@ -58,23 +59,19 @@ public class MemberAccount {
 	private String gender;
 	
 	@Column(name = "birthDate")
-	@Temporal(TemporalType.DATE)
-	private Calendar birthDate;
+	private LocalDateTime birthDate;
 	
 	@Column(name = "deathDate")
-	@Temporal(TemporalType.DATE)
-	private Calendar deathDate;
+	private LocalDateTime deathDate;
 	
 	@Column(name = "country")
 	private String country;
 	
 	@Column(name = "createdDate")
-	@Temporal(TemporalType.DATE)
-	private Calendar createdDate;
+	private LocalDateTime createdDate;
 	
 	@Column(name = "updatedDate")
-	@Temporal(TemporalType.DATE)
-	private Calendar updatedDate;
+	private LocalDateTime updatedDate;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "parent_id")

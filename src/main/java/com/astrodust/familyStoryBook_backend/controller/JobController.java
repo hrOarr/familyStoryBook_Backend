@@ -60,6 +60,9 @@ public class JobController {
             List<MemberJob> memberJobs = jobService.save(converter.memberInsertJobDTOtoMemberJob(memberInsertJobDTO, memberAccount));
             return ResponseEntity.status(HttpStatus.CREATED).body(memberJobs);
         }
+        catch (ResourceNotFoundException e){
+            throw new ResourceNotFoundException(e.getLocalizedMessage());
+        }
         catch (Exception e){
             logger.info("SoA:: exception from save() method---------------->", e);
             throw new Exception("Something went wrong. Please try again");
@@ -75,6 +78,9 @@ public class JobController {
                 throw new ResourceNotFoundException("Resource Not Found!");
             }
             return ResponseEntity.status(HttpStatus.OK).body(memberJob);
+        }
+        catch (ResourceNotFoundException e){
+            throw new ResourceNotFoundException(e.getLocalizedMessage());
         }
         catch (Exception e){
             logger.info("SoA:: exception from edit() method---------------->", e);
@@ -93,6 +99,9 @@ public class JobController {
             }
             MemberJob memberJob = jobService.update(converter.MemberUpdateJobDTOtoMemberJob(memberUpdateJobDTO, memberAccount));
             return ResponseEntity.status(HttpStatus.OK).body(memberJob);
+        }
+        catch (ResourceNotFoundException e){
+            throw new ResourceNotFoundException(e.getLocalizedMessage());
         }
         catch (Exception e){
             logger.info("SoA:: exception from update() method---------------->", e);

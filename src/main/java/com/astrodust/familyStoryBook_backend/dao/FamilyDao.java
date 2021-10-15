@@ -7,4 +7,6 @@ public interface FamilyDao {
 	public void update(FamilyAccount account);
 	public FamilyAccount getById(int id);
 	public FamilyAccount getByEmail(String email);
+	public FamilyAccount getByUsername(String username);
+	public int deleteById(int id);
 }

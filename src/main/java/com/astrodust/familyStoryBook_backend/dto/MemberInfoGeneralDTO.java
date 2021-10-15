@@ -1,5 +1,6 @@
 package com.astrodust.familyStoryBook_backend.dto;
 
+import java.time.LocalDateTime;
 import java.util.Calendar;
 
 import javax.persistence.Temporal;
@@ -41,12 +42,9 @@ public class MemberInfoGeneralDTO {
 	private Calendar birthDate;
 	private Calendar deathDate;
 	private String country;
-	
-	@Temporal(TemporalType.DATE)
-	private Calendar createdDate;
-	
-	@Temporal(TemporalType.DATE)
-	private Calendar updatedDate;
+
+	private LocalDateTime createdDate;
+	private LocalDateTime updatedDate;
 	
 	// member education
 	

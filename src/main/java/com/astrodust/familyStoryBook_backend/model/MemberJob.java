@@ -1,5 +1,6 @@
 package com.astrodust.familyStoryBook_backend.model;
 
+import java.time.LocalDateTime;
 import java.util.Calendar;
 
 import javax.persistence.Column;
@@ -42,12 +43,10 @@ public class MemberJob {
 	private String jobRole;
 	
 	@Column(name = "joinDate")
-	@Temporal(TemporalType.DATE)
-	private Calendar joinDate;
+	private LocalDateTime joinDate;
 	
 	@Column(name = "endDate")
-	@Temporal(TemporalType.DATE)
-	private Calendar endDate;
+	private LocalDateTime endDate;
 	
 	// relationship
 	

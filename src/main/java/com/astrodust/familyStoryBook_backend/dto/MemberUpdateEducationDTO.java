@@ -9,6 +9,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import java.util.Calendar;
 
 @Data
@@ -23,11 +24,9 @@ public class MemberUpdateEducationDTO {
     private String description;
 
     @NotNull(message = "StartDate is required")
-    @Temporal(TemporalType.DATE)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
-    private Calendar startDate;
+    private LocalDateTime startDate;
 
-    @Temporal(TemporalType.DATE)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
-    private Calendar endDate;
+    private LocalDateTime endDate;
 }

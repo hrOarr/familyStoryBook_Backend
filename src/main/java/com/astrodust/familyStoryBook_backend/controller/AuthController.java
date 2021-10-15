@@ -90,26 +90,45 @@ public class AuthController {
             logger.error("From authenticate method------User Disabled" + e.getMessage());
             throw new ValidationException("User Disabled");
         }
-
         catch (BadCredentialsException e){
             logger.error("From authenticate method------Bad credentials" + e.getMessage());
             throw new ValidationException("Email or password is not correct");
         }
         catch (Exception e){
+            logger.info("SoA:: Exception from authenticate method---------->");
             throw new Exception("Something went wrong. Please try again");
         }
     }
 
     @ApiOperation(value = "Family Sign-up")
     @PostMapping(value = "/register")
-    public ResponseEntity<?> register(@Valid @RequestBody FamilyRegisterDTO familyRegisterDTO) throws Exception {
+    public ResponseEntity<?> register(@Valid @RequestBody FamilyRegisterDTO familyRegisterDTO) throws Exception, ValidationException {
         FamilyAccount account = null;
         try {
             account = modelMapper.map(familyRegisterDTO, FamilyAccount.class);
             account.setPassword(passwordEncoder.encode(account.getPassword()));
             account.setCreatedDate(LocalDateTime.now());
+            logger.info("SoA:: before calling getByEmail--------------------->");
+            FamilyAccount account1 = familyService.getByEmail(account.getEmail());
+            logger.info("SoA:: after calling getByEmail--------------------->");
+            if(account1!=null){
+                logger.info("From register->method---------------");
+                throw new ValidationException("Email is already exists");
+            }
+            FamilyAccount account2 = familyService.getByUsername(account.getUsername());
+            if(account2!=null){
+                logger.info("From register->method---------------");
+                throw new ValidationException("Username already exists");
+            }
+            logger.info("SoA:: before calling save method-------------->");
             familyService.save(account);
-        } catch (Exception e) {
+        }
+        catch (ValidationException e){
+            logger.info("SoA:: Validation failed");
+            throw new ValidationException(e.getLocalizedMessage());
+        }
+        catch (Exception e) {
+            logger.info("SoA:: Exception from register method---------->");
             throw new Exception("Something went wrong. Please try again");
         }
 

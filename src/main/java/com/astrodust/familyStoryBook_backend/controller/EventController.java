@@ -69,6 +69,9 @@ public class EventController {
 			}
 			return ResponseEntity.ok(event);
 		}
+		catch (ResourceNotFoundException e){
+			throw new ResourceNotFoundException(e.getLocalizedMessage());
+		}
 		catch (Exception e){
 			logger.info("SoA:: exception from edit() method---------------->", e);
 			throw new Exception("Something went wrong. Please try again");
@@ -97,6 +100,9 @@ public class EventController {
 				throw new ResourceNotFoundException("Resource Not Found");
 			}
 			return ResponseEntity.ok(event);
+		}
+		catch (ResourceNotFoundException e){
+			throw new ResourceNotFoundException(e.getLocalizedMessage());
 		}
 		catch (Exception e){
 			logger.info("SoA:: exception from getById() method---------------->", e);

@@ -86,6 +86,9 @@ public class DocumentController {
             }
             return ResponseEntity.status(HttpStatus.OK).body(document);
         }
+        catch (ResourceNotFoundException e){
+            throw new ResourceNotFoundException(e.getLocalizedMessage());
+        }
         catch (Exception e){
             logger.info("SoA:: exception from getById() method---------------->", e);
             throw new Exception("Something went wrong. Please try again");
@@ -104,6 +107,9 @@ public class DocumentController {
                     .contentType(MediaType.parseMediaType(fileModel.getType()))
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment:filename=\"" + fileModel.getName() + "\"")
                     .body(new ByteArrayResource(ImageCompressionDecom.decompressBytes(fileModel.getFileByte())));
+        }
+        catch (ResourceNotFoundException e){
+            throw new ResourceNotFoundException(e.getLocalizedMessage());
         }
         catch (Exception e){
             logger.info("SoA:: exception from downloadFile() method---------------->", e);

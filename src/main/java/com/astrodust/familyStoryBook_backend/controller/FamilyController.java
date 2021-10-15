@@ -16,12 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.astrodust.familyStoryBook_backend.dto.FamilyRegisterDTO;
 import com.astrodust.familyStoryBook_backend.model.FamilyAccount;
@@ -55,6 +50,9 @@ public class FamilyController {
 			}
 			return ResponseEntity.ok(account);
 		}
+		catch (ResourceNotFoundException e){
+			throw new ResourceNotFoundException(e.getLocalizedMessage());
+		}
 		catch (Exception e){
 			logger.info("SoA:: exception from getById() method---------------->", e);
 			throw new Exception("Something went wrong. Please try again");
@@ -74,5 +72,12 @@ public class FamilyController {
 			throw new Exception("Something went wrong. Please try again");
 		}
 		return ResponseEntity.ok(familyRegisterDTO);
+	}
+
+	@ApiOperation(value = "Delete Family By Id")
+	@DeleteMapping(value = "/delete/{id}")
+	public ResponseEntity<?> deleteById(@PathVariable("id") int id){
+		int cnt = familyService.deleteById(id);
+		return ResponseEntity.status(HttpStatus.OK).body(cnt + " row(s) are deleted");
 	}
 }

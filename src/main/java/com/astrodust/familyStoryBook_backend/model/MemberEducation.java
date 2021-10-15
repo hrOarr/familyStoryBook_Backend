@@ -47,7 +47,6 @@ public class MemberEducation {
 	private LocalDateTime startDate;
 	
 	@Column(name = "endDate")
-	@Temporal(TemporalType.DATE)
 	private LocalDateTime endDate;
 	
 	// relationship

@@ -10,6 +10,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -28,11 +29,9 @@ public class MemberInsertJobDTO {
     private List<String> jobRole = new ArrayList<>();
 
     @NotNull(message = "Start-Date is required")
-    @Temporal(TemporalType.DATE)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
-    private List<Calendar> joinDate = new ArrayList<>();
+    private List<LocalDateTime> joinDate = new ArrayList<>();
 
-    @Temporal(TemporalType.DATE)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
-    private List<Calendar> endDate = new ArrayList<>();
+    private List<LocalDateTime> endDate = new ArrayList<>();
 }

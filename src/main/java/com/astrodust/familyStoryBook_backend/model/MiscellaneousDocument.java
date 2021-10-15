@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -32,12 +33,10 @@ public class MiscellaneousDocument {
     private String description;
 
     @Column(name = "addedDate")
-    @Temporal(TemporalType.DATE)
-    private Calendar addedDate;
+    private LocalDateTime addedDate;
 
     @Column(name = "updatedDate")
-    @Temporal(TemporalType.DATE)
-    private Calendar updatedDate;
+    private LocalDateTime updatedDate;
 
     // relationship
     @ManyToOne
