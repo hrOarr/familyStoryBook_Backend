@@ -5,7 +5,6 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -42,19 +41,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler{
         return new ResponseEntity<Object>(errorResponse, new HttpHeaders(), HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler({Exception.class})
-    public ResponseEntity<Object> handleAllExceptions(Exception ex, WebRequest webRequest){
-        logger.info("handleAllExceptions--------------->");
-        List<String> errors = new ArrayList<>();
-        errors.add(ex.getLocalizedMessage());
-        ErrorResponse errorResponse = new ErrorResponse("Internal Server Error", errors, LocalDateTime.now());
-        return new ResponseEntity(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    @ExceptionHandler({AccessDeniedException.class})
+    @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<Object> handleAccessDeniedException(Exception e, WebRequest request) {
         logger.info("AccessDeniedException->method starts------------->");
-        return new ResponseEntity<Object>("Access is denied", new HttpHeaders(), HttpStatus.FORBIDDEN);
+        List<String> errors = new ArrayList<>();
+        errors.add(e.getLocalizedMessage());
+        ErrorResponse errorResponse = new ErrorResponse("Access Denied", errors, LocalDateTime.now());
+        return new ResponseEntity<Object>(errorResponse, new HttpHeaders(), HttpStatus.FORBIDDEN);
     }
 
     @Override
@@ -62,5 +55,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler{
         String name = ex.getParameterName();
         logger.error(name + " parameter is missing");
         return super.handleMissingServletRequestParameter(ex, headers, status, request);
+    }
+
+    @ExceptionHandler({Exception.class})
+    public ResponseEntity<Object> handleAllExceptions(Exception ex, WebRequest webRequest){
+        logger.info("handleAllExceptions--------------->");
+        List<String> errors = new ArrayList<>();
+        errors.add(ex.getLocalizedMessage());
+        ErrorResponse errorResponse = new ErrorResponse("Internal Server Error", errors, LocalDateTime.now());
+        return new ResponseEntity(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

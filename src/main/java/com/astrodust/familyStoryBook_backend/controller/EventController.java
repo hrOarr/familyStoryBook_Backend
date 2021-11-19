@@ -1,26 +1,20 @@
 package com.astrodust.familyStoryBook_backend.controller;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
-import com.astrodust.familyStoryBook_backend.exception.GlobalExceptionHandler;
+import com.astrodust.familyStoryBook_backend.exception.AccessDeniedException;
 import com.astrodust.familyStoryBook_backend.exception.ResourceNotFoundException;
+import com.astrodust.familyStoryBook_backend.model.FamilyAccount;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.*;
 
 import com.astrodust.familyStoryBook_backend.dto.EventDTO;
 import com.astrodust.familyStoryBook_backend.helpers.Converter;
@@ -67,10 +61,15 @@ public class EventController {
 			if (event == null) {
 				throw new ResourceNotFoundException("Resource Not Found");
 			}
+			// authorization check
+			IsAuthorized(event);
 			return ResponseEntity.ok(event);
 		}
 		catch (ResourceNotFoundException e){
 			throw new ResourceNotFoundException(e.getLocalizedMessage());
+		}
+		catch (AccessDeniedException e){
+			throw new AccessDeniedException(e.getLocalizedMessage());
 		}
 		catch (Exception e){
 			logger.info("SoA:: exception from edit() method---------------->", e);
@@ -82,8 +81,14 @@ public class EventController {
 	@PutMapping(value = "/update/{familyId}")
 	public ResponseEntity<?> update(@Valid @RequestBody EventDTO eventDTO, @PathVariable(name = "familyId") int fid) throws Exception {
 		try {
-			eventService.update(converter.eventDTOtoEvent(eventDTO, familyService.getById(fid)));
+			Event event = converter.eventDTOtoEvent(eventDTO, familyService.getById(fid));
+			// authorization check
+			IsAuthorized(event);
+			eventService.update(event);
 			return ResponseEntity.status(HttpStatus.OK).body(eventDTO);
+		}
+		catch (AccessDeniedException e){
+			throw new AccessDeniedException(e.getLocalizedMessage());
 		}
 		catch (Exception e){
 			logger.info("SoA:: exception from update() method---------------->", e);
@@ -99,10 +104,15 @@ public class EventController {
 			if (event == null) {
 				throw new ResourceNotFoundException("Resource Not Found");
 			}
+			// authorization check
+			IsAuthorized(event);
 			return ResponseEntity.ok(event);
 		}
 		catch (ResourceNotFoundException e){
 			throw new ResourceNotFoundException(e.getLocalizedMessage());
+		}
+		catch (AccessDeniedException e){
+			throw new AccessDeniedException(e.getLocalizedMessage());
 		}
 		catch (Exception e){
 			logger.info("SoA:: exception from getById() method---------------->", e);
@@ -127,8 +137,17 @@ public class EventController {
 	@GetMapping(value = "/allEventsBy/{familyId}")
 	public ResponseEntity<?> getAllByFamilyId(@PathVariable(name = "familyId") int id) throws Exception {
 		try {
+			// authorization check
+			FamilyAccount familyAccount = familyService.getById(id);
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			if(auth.getPrincipal()!=familyAccount.getEmail()){
+				throw new AccessDeniedException("You are not authorized to access");
+			}
 			List<Event> events = eventService.getAllByFamilyId(id);
 			return ResponseEntity.ok(events);
+		}
+		catch (AccessDeniedException e){
+			throw new AccessDeniedException(e.getLocalizedMessage());
 		}
 		catch (Exception e){
 			logger.info("SoA:: exception from getAllByFamilyId() method---------------->", e);
@@ -140,12 +159,27 @@ public class EventController {
 	@DeleteMapping(value = "/delete/{id}")
 	public ResponseEntity<?> delete(@PathVariable int id) throws Exception {
 		try {
+			Event event = eventService.getById(id);
+			// authorization check
+			IsAuthorized(event);
 			int count = eventService.delete(id);
 			return ResponseEntity.ok("deleted = " + count + " row");
+		}
+		catch (AccessDeniedException e){
+			throw new AccessDeniedException(e.getLocalizedMessage());
 		}
 		catch (Exception e){
 			logger.info("SoA:: exception from delete() method---------------->", e);
 			throw new Exception("Something went wrong. Please try again");
+		}
+	}
+
+	public void IsAuthorized(Event event){
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		String email = event.getFamilyAccount().getEmail();
+		logger.info("SoA:: event-->" + email);
+		if(email!=auth.getPrincipal()){
+			throw new AccessDeniedException("You are not authorized to access");
 		}
 	}
 }
