@@ -12,8 +12,8 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import com.astrodust.familyStoryBook_backend.dto.EventDTO;
@@ -138,9 +138,17 @@ public class EventController {
 	public ResponseEntity<?> getAllByFamilyId(@PathVariable(name = "familyId") int id) throws Exception {
 		try {
 			// authorization check
+			String currentUsername = "";
 			FamilyAccount familyAccount = familyService.getById(id);
-			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-			if(auth.getPrincipal()!=familyAccount.getEmail()){
+			Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+			if(principal instanceof UserDetails){
+				currentUsername = (((UserDetails) principal).getUsername());
+			}
+			else{
+				currentUsername = principal.toString();
+			}
+			logger.info("SoA :: " + currentUsername);
+			if(familyAccount==null || currentUsername.equals(familyAccount.getEmail())==false){
 				throw new AccessDeniedException("You are not authorized to access");
 			}
 			List<Event> events = eventService.getAllByFamilyId(id);
@@ -160,10 +168,16 @@ public class EventController {
 	public ResponseEntity<?> delete(@PathVariable int id) throws Exception {
 		try {
 			Event event = eventService.getById(id);
+			if (event == null) {
+				throw new ResourceNotFoundException("Resource Not Found");
+			}
 			// authorization check
 			IsAuthorized(event);
 			int count = eventService.delete(id);
 			return ResponseEntity.ok("deleted = " + count + " row");
+		}
+		catch (ResourceNotFoundException e){
+			throw new ResourceNotFoundException(e.getLocalizedMessage());
 		}
 		catch (AccessDeniedException e){
 			throw new AccessDeniedException(e.getLocalizedMessage());
@@ -175,10 +189,17 @@ public class EventController {
 	}
 
 	public void IsAuthorized(Event event){
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		String currentUsername = "";
+		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		if(principal instanceof UserDetails){
+			currentUsername = (((UserDetails) principal).getUsername());
+		}
+		else{
+			currentUsername = principal.toString();
+		}
 		String email = event.getFamilyAccount().getEmail();
 		logger.info("SoA:: event-->" + email);
-		if(email!=auth.getPrincipal()){
+		if(email.equals(currentUsername)==false){
 			throw new AccessDeniedException("You are not authorized to access");
 		}
 	}
