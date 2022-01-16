@@ -1,5 +1,7 @@
 package com.astrodust.familyStoryBook_backend.dto;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Set;
 
 import javax.validation.constraints.Email;
@@ -29,6 +31,8 @@ public class MemberDTO {
 	@NotEmpty(message = "LastName can't be empty")
 	@Size(min = 3, max = 55, message = "LastName must be between 3 and 55 characters")
 	private String lastName;
+
+	private String name;
 	
 	@Email(message = "Email must be valid")
 	private String email;
@@ -40,13 +44,13 @@ public class MemberDTO {
 	
 	@Positive(message = "Invalid FamilyId")
 	private int family_id;
-	
-	//private Calendar birthDate;
-	//private Calendar deathDate;
+
+	private LocalDate birthDate;
+	private LocalDate deathDate;
 	private String country;
 	
-	private MemberAccount parent;
-	private Set<MemberAccount> childrens;
+	//private MemberAccount parent;
+	private Set<MemberAccount> children;
 	
 	// member education
 	

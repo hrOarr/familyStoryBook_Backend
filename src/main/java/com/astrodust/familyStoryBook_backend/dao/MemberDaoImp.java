@@ -73,6 +73,15 @@ public class MemberDaoImp implements MemberDao {
 
 	@Override
 	@SuppressWarnings("unchecked")
+	public List<MemberAccount> getAllMembersByFid(int fid) {
+		Session session = sessionFactory.getCurrentSession();
+		Query query = session.createQuery("SELECT ma FROM MemberAccount ma INNER JOIN ma.familyAccount fa WHERE fa.id=:id");
+		query.setParameter("id", fid);
+		return query.getResultList();
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
 	public MemberAccount getRootByFid(int f_id) {
 		Session session = sessionFactory.getCurrentSession();
 		String hql = "SELECT ma FROM MemberAccount ma INNER JOIN ma.familyAccount fa WHERE fa.id=:f_id AND ma.parent.id=null";

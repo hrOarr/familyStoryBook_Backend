@@ -1,37 +1,43 @@
 package com.astrodust.familyStoryBook_backend.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import io.swagger.annotations.ApiOperation;
 import lombok.Data;
 
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
+import java.time.LocalDate;
 
 @Data
 @ApiModel(value = "MemberInsertJobDTO", description = "Member-job fields for insertion")
 public class MemberInsertJobDTO {
 
-    @ApiModelProperty(value = "JobIds")
-    private List<Integer> id;
+    @ApiModelProperty(value = "id")
+    private int id;
 
     @NotEmpty(message = "Company-Name is required")
-    private List<String> companyName = new ArrayList<>();
+    private String companyName;
+
+    private String location;
+    private String description;
 
     @NotEmpty(message = "Job-Role is required")
-    private List<String> jobRole = new ArrayList<>();
+    private String jobRole;
 
-    @NotNull(message = "Start-Date is required")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
-    private List<LocalDateTime> joinDate = new ArrayList<>();
+    @NotNull(message = "JoinDate is required")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    @JsonDeserialize(using = LocalDateDeserializer.class)
+    @JsonSerialize(using = LocalDateSerializer.class)
+    private LocalDate joinDate;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
-    private List<LocalDateTime> endDate = new ArrayList<>();
+    @NotNull(message = "EndDate is required")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    @JsonDeserialize(using = LocalDateDeserializer.class)
+    @JsonSerialize(using = LocalDateSerializer.class)
+    private LocalDate endDate;
 }

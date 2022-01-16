@@ -1,5 +1,6 @@
 package com.astrodust.familyStoryBook_backend.model;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Calendar;
 
@@ -44,7 +45,7 @@ public class Event {
 	private String eventDetails;
 	
 	@Column(name = "eventDateTime")
-	private LocalDateTime eventDateTime;
+	private LocalDate eventDateTime;
 	
 	@Column(name = "createdDate")
 	private LocalDateTime createdDate;

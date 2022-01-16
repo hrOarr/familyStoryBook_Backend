@@ -48,7 +48,7 @@ public class JobDaoImp implements JobDao {
     @Override
     public MemberJob update(MemberJob memberJob) {
         Session session = sessionFactory.getCurrentSession();
-        session.update(memberJob);
+        session.merge(memberJob);
         return this.getById(memberJob.getId());
     }
 

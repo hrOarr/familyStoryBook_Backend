@@ -1,6 +1,7 @@
 package com.astrodust.familyStoryBook_backend.helpers;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -37,7 +38,7 @@ public class Converter {
 		// if root or have parent
 		if(parent!=null) {
 			account.setParent(parent);
-			if(account.getId()<=0) parent.getChildrens().add(account);
+			if(account.getId()<=0) parent.getChildren().add(account);
 		}
 		
 		if(account.getId()<=0) { // insertion
@@ -60,9 +61,11 @@ public class Converter {
 	
 	public MemberDTO memberToMemDTO(MemberAccount account) {
 		logger.info("Converter memberToMemDTO() method init->>>>>>>>>>>>");
+		modelMapper.getConfiguration().setAmbiguityIgnored(true);
 		MemberDTO memberDTO = modelMapper.map(account, MemberDTO.class);
+		memberDTO.setName(memberDTO.getFirstName()+" "+memberDTO.getLastName());
+		memberDTO.setFamily_id(account.getFamilyAccount().getId());
 		//if(account.getParent()!=null)memberDTO.setParent_id(account.getParent().getId());
-		memberDTO.setParent(account.getParent());
 		System.out.println(memberDTO + " -???????");
 		return memberDTO;
 	}
@@ -81,24 +84,19 @@ public class Converter {
 		return event;
 	}
 	
-	public List<MemberEducation> memberInsertEducationDTOtoMemberEducation(MemberInsertEducationDTO memberInsertEducationDTO, MemberAccount memberAccount){
+	public List<MemberEducation> memberInsertEducationDTOtoMemberEducation(List<MemberInsertEducationDTO> memberInsertEducationDTO, MemberAccount memberAccount){
 		logger.info("Converter memberEducationDTOtoMemberEducation() method init->>>>>>>>>>>>>>>");
 		List<MemberEducation> educations = new ArrayList<MemberEducation>();
-		// all properties
-		List<Integer> idList = memberInsertEducationDTO.getId();
-		List<String> institutions = memberInsertEducationDTO.getInstitution();
-		List<String> descriptions = memberInsertEducationDTO.getDescription();
-		List<LocalDateTime> startDates = memberInsertEducationDTO.getStartDate();
-		List<LocalDateTime> endDates = memberInsertEducationDTO.getEndDate();
 
-		for(int i=0;i<institutions.size();i++) {
+		for(MemberInsertEducationDTO insertEducationDTO:memberInsertEducationDTO) {
 			MemberEducation memberEducation = new MemberEducation();
-			memberEducation.setInstitution(institutions.get(i));
-			memberEducation.setDescription(descriptions.get(i));
-			memberEducation.setStartDate(startDates.get(i));
-			memberEducation.setEndDate(endDates.get(i));
+			memberEducation.setInstitution(insertEducationDTO.getInstitution());
+			memberEducation.setDescription(insertEducationDTO.getDescription());
+			memberEducation.setStartDate(insertEducationDTO.getStartDate());
+			memberEducation.setEndDate(insertEducationDTO.getEndDate());
 			memberEducation.setMemberAccount(memberAccount);
 			educations.add(memberEducation);
+			logger.info("SoA:: memberEducation = " + memberEducation);
 		}
 		
 		return educations;
@@ -107,25 +105,21 @@ public class Converter {
 	public MemberEducation memberUpdateEducationDTOtoMemberEducation(MemberUpdateEducationDTO memberUpdateEducationDTO, MemberAccount memberAccount){
 		MemberEducation memberEducation = modelMapper.map(memberUpdateEducationDTO, MemberEducation.class);
 		memberEducation.setMemberAccount(memberAccount);
+		logger.info("SoA:: " + memberEducation.getId() + " " + memberEducation.getInstitution());
 		return memberEducation;
 	}
 
-	public List<MemberJob> memberInsertJobDTOtoMemberJob(MemberInsertJobDTO memberInsertJobDTO, MemberAccount memberAccount){
+	public List<MemberJob> memberInsertJobDTOtoMemberJob(List<MemberInsertJobDTO> memberInsertJobDTO, MemberAccount memberAccount){
 		List<MemberJob> memberJobs = new ArrayList<>();
 
-		// all properties
-		List<Integer> ids = memberInsertJobDTO.getId();
-		List<String> companyNames = memberInsertJobDTO.getCompanyName();
-		List<String> jobRoles = memberInsertJobDTO.getJobRole();
-		List<LocalDateTime> joinDates = memberInsertJobDTO.getJoinDate();
-		List<LocalDateTime> endDates = memberInsertJobDTO.getEndDate();
-
-		for(int i=0;i<companyNames.size();i++){
+		for(MemberInsertJobDTO insertJobDTO:memberInsertJobDTO){
 			MemberJob memberJob = new MemberJob();
-			memberJob.setCompanyName(companyNames.get(i));
-			memberJob.setJobRole(jobRoles.get(i));
-			memberJob.setJoinDate(joinDates.get(i));
-			memberJob.setEndDate(endDates.get(i));
+			memberJob.setCompanyName(insertJobDTO.getCompanyName());
+			memberJob.setJobRole(insertJobDTO.getJobRole());
+			memberJob.setDescription(insertJobDTO.getDescription());
+			memberJob.setLocation(insertJobDTO.getLocation());
+			memberJob.setJoinDate(insertJobDTO.getJoinDate());
+			memberJob.setEndDate(insertJobDTO.getEndDate());
 			memberJob.setMemberAccount(memberAccount);
 			memberJobs.add(memberJob);
 		}

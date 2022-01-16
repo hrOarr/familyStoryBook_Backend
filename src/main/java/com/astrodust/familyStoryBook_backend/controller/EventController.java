@@ -41,9 +41,10 @@ public class EventController {
 	}
 	
 	@ApiOperation(value = "Save New Event")
-	@PostMapping(value = "/add/{familyId}")
+	@PostMapping(value = "/add/familyId/{familyId}")
 	public ResponseEntity<?> save(@Valid @RequestBody EventDTO eventDTO, @PathVariable(name = "familyId") int id) throws Exception {
 		try {
+			logger.info("SoA:: " + eventDTO);
 			eventService.save(converter.eventDTOtoEvent(eventDTO, familyService.getById(id)));
 			return ResponseEntity.status(HttpStatus.CREATED).body(eventDTO);
 		}
@@ -54,7 +55,7 @@ public class EventController {
 	}
 	
 	@ApiOperation(value = "Get Event for Edit")
-	@GetMapping(value = "/edit/{id}")
+	@GetMapping(value = "/edit/eventId/{id}")
 	public ResponseEntity<?> edit(@PathVariable int id) throws Exception {
 		try {
 			Event event = eventService.getById(id);
@@ -78,9 +79,11 @@ public class EventController {
 	}
 	
 	@ApiOperation(value = "Update an Event")
-	@PutMapping(value = "/update/{familyId}")
-	public ResponseEntity<?> update(@Valid @RequestBody EventDTO eventDTO, @PathVariable(name = "familyId") int fid) throws Exception {
+	@PutMapping(value = "/update/familyId/{familyId}/eventId/{id}")
+	public ResponseEntity<?> update(@Valid @RequestBody EventDTO eventDTO, @PathVariable(name = "familyId") int fid,
+									@PathVariable(name = "id") int id) throws Exception {
 		try {
+			eventDTO.setId(id);
 			Event event = converter.eventDTOtoEvent(eventDTO, familyService.getById(fid));
 			// authorization check
 			IsAuthorized(event);

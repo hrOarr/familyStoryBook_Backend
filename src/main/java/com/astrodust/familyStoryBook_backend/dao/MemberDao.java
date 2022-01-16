@@ -13,4 +13,5 @@ public interface MemberDao {
 	public MemberAccount getByFamilyIdAndId(int id,int fid);
 	public List<MemberAccount> getAllChildsByParent(int parent_id);
 	public MemberAccount getParentByChild(int child_id);
+	public List<MemberAccount> getAllMembersByFid(int fid);
 }

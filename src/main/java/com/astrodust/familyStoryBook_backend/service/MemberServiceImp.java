@@ -50,6 +50,11 @@ public class MemberServiceImp implements MemberService {
 	}
 
 	@Override
+	public List<MemberAccount> getAllMembersByFid(int fid) {
+		return memberDao.getAllMembersByFid(fid);
+	}
+
+	@Override
 	public MemberAccount getRootByFid(int f_id) {
 		return memberDao.getRootByFid(f_id);
 	}

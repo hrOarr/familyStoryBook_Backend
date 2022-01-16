@@ -32,7 +32,7 @@ public class EducationDaoImp implements EducationDao {
 	@Override
 	public void update(MemberEducation education) {
 		Session session = sessionFactory.getCurrentSession();
-		session.update(education);
+		session.merge(education);
 	}
 
 	@Override
