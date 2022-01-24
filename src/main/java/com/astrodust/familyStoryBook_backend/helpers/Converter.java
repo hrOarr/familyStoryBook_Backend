@@ -171,7 +171,7 @@ public class Converter {
 		imageModel.setPicByte(imageCompressionDecom.compressBytes(insertAchievementDTO.getImage().getBytes()));
 		achievement.setImage(imageModel);
 		// added date
-		achievement.setAddedDate(LocalDateTime.now());
+		achievement.setAddedDate(LocalDate.now());
 		// member
 		achievement.setMemberAccount(memberAccount);
 
@@ -197,7 +197,7 @@ public class Converter {
 		// added date
 		achievement.setAddedDate(updateAchievementDTO.getAddedDate());
 		// updated date
-		achievement.setUpdatedDate(LocalDateTime.now());
+		achievement.setUpdatedDate(LocalDate.now());
 		// member
 		achievement.setMemberAccount(memberAccount);
 		return achievement;
@@ -208,6 +208,8 @@ public class Converter {
 		String str = Base64.getEncoder().encodeToString(imageCompressionDecom.decompressBytes(achievement.getImage().getPicByte()));
 		achievementDTO.setImageBase64("data:"+achievement.getImage().getType()+";base64,"+ str);
 		achievementDTO.setImage_id(achievement.getImage().getId());
+		achievementDTO.setImage_name(achievement.getImage().getName());
+		achievementDTO.setImage_type(achievement.getImage().getType());
 		return achievementDTO;
 	}
 

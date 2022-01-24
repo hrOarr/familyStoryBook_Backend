@@ -11,7 +11,7 @@ import javax.validation.constraints.NotEmpty;
 @ApiModel(value = "InsertAchievementDTO", description = "Achievement fields for insertion")
 public class InsertAchievementDTO {
 
-    @ApiModelProperty(value = "AchievementIds")
+    @ApiModelProperty(value = "id")
     private int id;
     //private List<Integer> id = new ArrayList<>();
 

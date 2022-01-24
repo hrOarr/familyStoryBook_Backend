@@ -12,5 +12,7 @@ public class AchievementDTO {
     private LocalDateTime addedDate;
     private LocalDateTime updatedDate;
     private int image_id;
+    private String image_name;
+    private String image_type;
     private String imageBase64;
 }

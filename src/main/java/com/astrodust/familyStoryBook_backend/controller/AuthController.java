@@ -74,7 +74,7 @@ public class AuthController {
             logger.info("SoA:: Exception from login method------------->", e);
             throw new Exception("Something went wrong. Please try again");
         }
-        FamilyLoginResponseDTO familyLoginResponseDTO = new FamilyLoginResponseDTO(account.getUsername(), account.getEmail(), token);
+        FamilyLoginResponseDTO familyLoginResponseDTO = new FamilyLoginResponseDTO(account.getId(), account.getUsername(), account.getEmail(), token);
         return ResponseEntity.status(HttpStatus.OK).body(familyLoginResponseDTO);
     }
 

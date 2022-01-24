@@ -1,5 +1,6 @@
 package com.astrodust.familyStoryBook_backend.model;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Calendar;
 
@@ -32,10 +33,10 @@ public class Achievement {
 	private String description;
 	
 	@Column(name = "addedDate")
-	private LocalDateTime addedDate;
+	private LocalDate addedDate;
 	
 	@Column(name = "updatedDate")
-	private LocalDateTime updatedDate;
+	private LocalDate updatedDate;
 	
 	// relationship
 	

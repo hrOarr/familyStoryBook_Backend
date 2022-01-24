@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @ApiModel(value = "FamilyLoginResponseDTO")
 public class FamilyLoginResponseDTO {
+    private int id;
     private String username;
     private String email;
     private String token;
