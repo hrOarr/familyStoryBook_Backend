@@ -122,6 +122,20 @@ public class AuthController {
             }
             logger.info("SoA:: before calling save method-------------->");
             familyService.save(account);
+
+            // authentication
+            authenticate(familyRegisterDTO.getEmail(), familyRegisterDTO.getPassword());
+            final UserDetails userDetails = userDetailsService.loadUserByUsername(familyRegisterDTO.getEmail());
+            final String token = jwtToken.generateToken(userDetails);
+            try{
+                account = familyService.getByEmail(familyRegisterDTO.getEmail());
+            }
+            catch (Exception e){
+                logger.info("SoA:: Exception from register method------------->", e);
+                throw new Exception("Something went wrong. Please try again");
+            }
+            FamilyLoginResponseDTO familyLoginResponseDTO = new FamilyLoginResponseDTO(account.getId(), account.getUsername(), account.getEmail(), token);
+            return ResponseEntity.status(HttpStatus.OK).body(familyLoginResponseDTO);
         }
         catch (ValidationException e){
             logger.info("SoA:: Validation failed");
@@ -131,8 +145,6 @@ public class AuthController {
             logger.info("SoA:: Exception from register method---------->");
             throw new Exception("Something went wrong. Please try again");
         }
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(account);
     }
 
     @GetMapping

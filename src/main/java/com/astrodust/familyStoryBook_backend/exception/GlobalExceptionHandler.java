@@ -32,13 +32,22 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler{
         return new ResponseEntity(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler({ValidationException.class, ResourceNotFoundException.class})
+    @ExceptionHandler({ValidationException.class})
     public ResponseEntity<Object> handleValidationException(Exception ex, WebRequest request) {
         logger.info("ValidationException->method starts------------->");
         List<String> errors = new ArrayList<>();
         errors.add(ex.getLocalizedMessage());
         ErrorResponse errorResponse = new ErrorResponse("Validation Failed", errors, LocalDateTime.now());
         return new ResponseEntity<Object>(errorResponse, new HttpHeaders(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler({ResourceNotFoundException.class})
+    public ResponseEntity<Object> handleNotFoundException(Exception ex, WebRequest request) {
+        logger.info("NotFoundException->method starts------------->");
+        List<String> errors = new ArrayList<>();
+        errors.add(ex.getLocalizedMessage());
+        ErrorResponse errorResponse = new ErrorResponse("Content Not Found", errors, LocalDateTime.now());
+        return new ResponseEntity<Object>(errorResponse, new HttpHeaders(), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(AccessDeniedException.class)

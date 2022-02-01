@@ -47,16 +47,17 @@ public class MemberController {
 	}
 	
 	@ApiOperation(value = "Get Single Member")
-	@GetMapping(value = "/memberId/{id}")
-	public ResponseEntity<?> getById(@PathVariable int id) throws Exception {
+	@GetMapping(value = "/memberId/{id}/familyId/{familyId}")
+	public ResponseEntity<?> getById(@PathVariable(name = "id") int id, @PathVariable(name = "familyId") int fid) throws Exception {
 		try {
 			logger.info("MemberController getById() method init->>>>>>>>>>");
 			MemberAccount account = memberService.getById(id);
 			if(account == null){
 				throw new ResourceNotFoundException("Resource Not Found");
 			}
+			FamilyAccount familyAccount = familyService.getById(fid);
 			// authorization check
-			IsAuthorized(account);
+			IsAuthorized(familyAccount);
 			MemberDTO memberDTO = converter.memberToMemDTO(account);
 			return ResponseEntity.ok(memberDTO);
 		}
@@ -74,15 +75,16 @@ public class MemberController {
 	
 	@ApiOperation(value = "Get Root Member")
 	@GetMapping(value = "/root/{familyId}")
-	public ResponseEntity<?> getRootByFid(@PathVariable(name = "familyId") int f_id) throws Exception {
+	public ResponseEntity<?> getRootByFid(@PathVariable(name = "familyId") int fid) throws Exception {
 		try {
 			logger.info("MemberController getRootByFid() method init->>>>>>>>>>");
-			MemberAccount account = memberService.getRootByFid(f_id);
+			MemberAccount account = memberService.getRootByFid(fid);
 			if (account == null) {
 				throw new ResourceNotFoundException("Resource Not found");
 			}
 			// authorization check
-			IsAuthorized(account);
+			FamilyAccount familyAccount = familyService.getById(fid);
+			IsAuthorized(familyAccount);
 			MemberDTO memberDTO = converter.memberToMemDTO(account);
 			return ResponseEntity.ok(memberDTO);
 		}
@@ -104,6 +106,9 @@ public class MemberController {
 			@PathVariable(name = "familyId") int fid, @PathVariable(name = "parentId") int pid) throws Exception {
 		try {
 			logger.info("MemberController save() method init->>>>>>");
+			// authorization check
+			FamilyAccount familyAccount = familyService.getById(fid);
+			IsAuthorized(familyAccount);
 			memberService.save(converter.memberInfoGeneralToMem(memberInfoGeneralDTO, familyService.getById(fid), memberService.getById(pid)));
 			return ResponseEntity.status(HttpStatus.CREATED).body(memberInfoGeneralDTO);
 		}
@@ -123,7 +128,8 @@ public class MemberController {
 				throw new ResourceNotFoundException("Resource Not Found");
 			}
 			// authorization check
-			IsAuthorized(memberAccount);
+			FamilyAccount familyAccount = familyService.getById(fid);
+			IsAuthorized(familyAccount);
 			return ResponseEntity.ok(converter.memberToMemberInfoGeneralDTO(memberAccount));
 		}
 		catch (ResourceNotFoundException e){
@@ -144,6 +150,9 @@ public class MemberController {
 			@PathVariable(name = "familyId") int fid, @PathVariable(name = "parentId") int pid) throws Exception {
 		try {
 			logger.info("MemberController update() method init->>>>>>");
+			// authorization check
+			FamilyAccount familyAccount = familyService.getById(fid);
+			IsAuthorized(familyAccount);
 			memberService.update(converter.memberInfoGeneralToMem(memberInfoGeneralDTO, familyService.getById(fid), memberService.getById(pid)));
 			return ResponseEntity.ok(memberInfoGeneralDTO);
 		}
@@ -157,20 +166,9 @@ public class MemberController {
 	@GetMapping(value = "/getAll/familyId/{familyId}")
 	public ResponseEntity<?> getAllMembers(@PathVariable(name = "familyId") int fid) throws Exception {
 		try {
-			// check authorization
+			// authorization check
 			FamilyAccount familyAccount = familyService.getById(fid);
-			String currentUsername = "";
-			Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-			if(principal instanceof UserDetails){
-				currentUsername = (((UserDetails) principal).getUsername());
-			}
-			else{
-				currentUsername = principal.toString();
-			}
-			String email = familyAccount.getEmail();
-			if(email.equals(currentUsername)==false){
-				throw new AccessDeniedException("You are not authorized to access");
-			}
+			IsAuthorized(familyAccount);
 			List<MemberAccount> memberAccountList = memberService.getAllMembersByFid(fid);
 			List<MemberDTO> memberAccounts = new ArrayList<>();
 			for(MemberAccount account:memberAccountList){
@@ -186,7 +184,7 @@ public class MemberController {
 		}
 	}
 
-	public void IsAuthorized(MemberAccount memberAccount){
+	public void IsAuthorized(FamilyAccount familyAccount){
 		String currentUsername = "";
 		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		if(principal instanceof UserDetails){
@@ -195,8 +193,10 @@ public class MemberController {
 		else{
 			currentUsername = principal.toString();
 		}
-		String email = memberAccount.getFamilyAccount().getEmail();
-		logger.info("SoA:: event-->" + email);
+		if(familyAccount==null){
+			return;
+		}
+		String email = familyAccount.getEmail();
 		if(email.equals(currentUsername)==false){
 			throw new AccessDeniedException("You are not authorized to access");
 		}
