@@ -12,7 +12,7 @@
   - Achievement
 
 
-##### technology used to develop
+#### Technology
 - Spring-boot
 - Maven
 - Hibernate
