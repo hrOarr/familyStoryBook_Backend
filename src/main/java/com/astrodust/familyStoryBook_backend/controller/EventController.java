@@ -1,14 +1,14 @@
 package com.astrodust.familyStoryBook_backend.controller;
 
-import java.util.List;
-
-import javax.validation.Valid;
-
-import com.astrodust.familyStoryBook_backend.exception.AccessDeniedException;
+import com.astrodust.familyStoryBook_backend.dto.EventDTO;
 import com.astrodust.familyStoryBook_backend.exception.ResourceNotFoundException;
+import com.astrodust.familyStoryBook_backend.mapper.EventMapper;
+import com.astrodust.familyStoryBook_backend.model.Event;
 import com.astrodust.familyStoryBook_backend.model.FamilyAccount;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import com.astrodust.familyStoryBook_backend.service.interfaces.EventService;
+import com.astrodust.familyStoryBook_backend.service.interfaces.FamilyService;
+import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,194 +16,80 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import com.astrodust.familyStoryBook_backend.dto.EventDTO;
-import com.astrodust.familyStoryBook_backend.helpers.Converter;
-import com.astrodust.familyStoryBook_backend.model.Event;
-import com.astrodust.familyStoryBook_backend.service.interfaces.EventService;
-import com.astrodust.familyStoryBook_backend.service.interfaces.FamilyService;
+import javax.validation.Valid;
+import java.util.List;
 
-import io.swagger.annotations.ApiOperation;
-
+@Slf4j
 @RestController
-@RequestMapping("/api/v1/family/event")
+@RequestMapping("/api/v1/events")
 public class EventController {
-	private static final Logger logger = LogManager.getLogger(EventController.class);
-	
-	private EventService eventService;
-	private FamilyService familyService;
-	private Converter converter;
-	
+	private final EventService eventService;
+	private final FamilyService familyService;
+	private final EventMapper eventMapper;
+
 	@Autowired
-	public EventController(EventService eventService, FamilyService familyService, Converter converter) {
+	public EventController(EventService eventService, FamilyService familyService, EventMapper eventMapper) {
 		this.eventService = eventService;
 		this.familyService = familyService;
-		this.converter = converter;
+		this.eventMapper = eventMapper;
 	}
 	
 	@ApiOperation(value = "Save New Event")
-	@PostMapping(value = "/add/familyId/{familyId}")
-	public ResponseEntity<?> save(@Valid @RequestBody EventDTO eventDTO, @PathVariable(name = "familyId") int id) throws Exception {
-		try {
-			logger.info("SoA:: " + eventDTO);
-			eventService.save(converter.eventDTOtoEvent(eventDTO, familyService.getById(id)));
-			return ResponseEntity.status(HttpStatus.CREATED).body(eventDTO);
-		}
-		catch (Exception e){
-			logger.info("SoA:: exception from save() method---------------->", e);
-			throw new Exception("Something went wrong. Please try again");
-		}
+	@PostMapping(value = "/")
+	public ResponseEntity<?> save(@Valid @RequestBody EventDTO eventDTO) throws Exception {
+		UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		FamilyAccount familyAccount = familyService.getByEmail(userDetails.getUsername());
+		eventService.save(eventMapper.toEntity(eventDTO, familyAccount));
+		return ResponseEntity.status(HttpStatus.CREATED).body(eventDTO);
 	}
 	
-	@ApiOperation(value = "Get Event for Edit")
-	@GetMapping(value = "/edit/eventId/{id}")
-	public ResponseEntity<?> edit(@PathVariable int id) throws Exception {
-		try {
-			Event event = eventService.getById(id);
-			if (event == null) {
-				throw new ResourceNotFoundException("Resource Not Found");
-			}
-			// authorization check
-			IsAuthorized(event);
-			return ResponseEntity.ok(event);
+	@ApiOperation(value = "Get Event By Id")
+	@GetMapping(value = "/{id}")
+	public ResponseEntity<?> findById(@PathVariable int id) throws Exception {
+		Event event = eventService.getById(id);
+		if (event == null) {
+			throw new ResourceNotFoundException("Resource Not Found");
 		}
-		catch (ResourceNotFoundException e){
-			throw new ResourceNotFoundException(e.getLocalizedMessage());
-		}
-		catch (AccessDeniedException e){
-			throw new AccessDeniedException(e.getLocalizedMessage());
-		}
-		catch (Exception e){
-			logger.info("SoA:: exception from edit() method---------------->", e);
-			throw new Exception("Something went wrong. Please try again");
-		}
+		return ResponseEntity.status(HttpStatus.OK).body(event);
 	}
 	
 	@ApiOperation(value = "Update an Event")
-	@PutMapping(value = "/update/familyId/{familyId}/eventId/{id}")
-	public ResponseEntity<?> update(@Valid @RequestBody EventDTO eventDTO, @PathVariable(name = "familyId") int fid,
+	@PutMapping(value = "/{id}")
+	public ResponseEntity<?> update(@Valid @RequestBody EventDTO eventDTO,
 									@PathVariable(name = "id") int id) throws Exception {
-		try {
-			eventDTO.setId(id);
-			Event event = converter.eventDTOtoEvent(eventDTO, familyService.getById(fid));
-			// authorization check
-			IsAuthorized(event);
-			eventService.update(event);
-			return ResponseEntity.status(HttpStatus.OK).body(eventDTO);
-		}
-		catch (AccessDeniedException e){
-			throw new AccessDeniedException(e.getLocalizedMessage());
-		}
-		catch (Exception e){
-			logger.info("SoA:: exception from update() method---------------->", e);
-			throw new Exception("Something went wrong. Please try again");
-		}
+		eventDTO.setId(id);
+		UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		FamilyAccount familyAccount = familyService.getByEmail(userDetails.getUsername());
+		Event event = eventMapper.toEntity(eventDTO, familyAccount);
+		eventService.update(event);
+		return ResponseEntity.status(HttpStatus.OK).body(eventDTO);
 	}
 	
-	@ApiOperation(value = "Get Single Event")
+	@ApiOperation(value = "Get Event By Id")
 	@GetMapping(value = "/{id}")
 	public ResponseEntity<?> getById(@PathVariable int id) throws Exception {
-		try {
-			Event event = eventService.getById(id);
-			if (event == null) {
-				throw new ResourceNotFoundException("Resource Not Found");
-			}
-			// authorization check
-			IsAuthorized(event);
-			return ResponseEntity.ok(event);
+		Event event = eventService.getById(id);
+		if (event == null) {
+			throw new ResourceNotFoundException("Resource Not Found");
 		}
-		catch (ResourceNotFoundException e){
-			throw new ResourceNotFoundException(e.getLocalizedMessage());
-		}
-		catch (AccessDeniedException e){
-			throw new AccessDeniedException(e.getLocalizedMessage());
-		}
-		catch (Exception e){
-			logger.info("SoA:: exception from getById() method---------------->", e);
-			throw new Exception("Something went wrong. Please try again");
-		}
-	}
-	
-	@ApiOperation(value = "Get All-Events")
-	@GetMapping(value = "/allEvents")
-	public ResponseEntity<?> getAllEvents() throws Exception {
-		try {
-			List<Event> events = eventService.getAllEvents();
-			return ResponseEntity.ok(events);
-		}
-		catch (Exception e){
-			logger.info("SoA:: exception from getAllEvents() method---------------->", e);
-			throw new Exception("Something went wrong. Please try again");
-		}
+		return ResponseEntity.status(HttpStatus.OK).body(event);
 	}
 	
 	@ApiOperation(value = "Get All-Events By Family-Id")
-	@GetMapping(value = "/allEventsBy/{familyId}")
-	public ResponseEntity<?> getAllByFamilyId(@PathVariable(name = "familyId") int id) throws Exception {
-		try {
-			// authorization check
-			String currentUsername = "";
-			FamilyAccount familyAccount = familyService.getById(id);
-			Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-			if(principal instanceof UserDetails){
-				currentUsername = (((UserDetails) principal).getUsername());
-			}
-			else{
-				currentUsername = principal.toString();
-			}
-			logger.info("SoA :: " + currentUsername);
-			if(familyAccount==null || currentUsername.equals(familyAccount.getEmail())==false){
-				throw new AccessDeniedException("You are not authorized to access");
-			}
-			List<Event> events = eventService.getAllByFamilyId(id);
-			return ResponseEntity.ok(events);
-		}
-		catch (AccessDeniedException e){
-			throw new AccessDeniedException(e.getLocalizedMessage());
-		}
-		catch (Exception e){
-			logger.info("SoA:: exception from getAllByFamilyId() method---------------->", e);
-			throw new Exception("Something went wrong. Please try again");
-		}
+	@GetMapping(value = "/")
+	public ResponseEntity<?> getAllByFamilyId(@RequestParam(name = "familyId") int familyId) throws Exception {
+		List<Event> events = eventService.getAllByFamilyId(familyId);
+		return ResponseEntity.status(HttpStatus.OK).body(events);
 	}
 	
-	@ApiOperation(value = "Delete Single Event")
-	@DeleteMapping(value = "/delete/{id}")
+	@ApiOperation(value = "Delete Event By Id")
+	@DeleteMapping(value = "/{id}")
 	public ResponseEntity<?> delete(@PathVariable int id) throws Exception {
-		try {
-			Event event = eventService.getById(id);
-			if (event == null) {
-				throw new ResourceNotFoundException("Resource Not Found");
-			}
-			// authorization check
-			IsAuthorized(event);
-			int count = eventService.delete(id);
-			return ResponseEntity.ok("deleted = " + count + " row");
+		Event event = eventService.getById(id);
+		if (event == null) {
+			throw new ResourceNotFoundException("Resource Not Found");
 		}
-		catch (ResourceNotFoundException e){
-			throw new ResourceNotFoundException(e.getLocalizedMessage());
-		}
-		catch (AccessDeniedException e){
-			throw new AccessDeniedException(e.getLocalizedMessage());
-		}
-		catch (Exception e){
-			logger.info("SoA:: exception from delete() method---------------->", e);
-			throw new Exception("Something went wrong. Please try again");
-		}
-	}
-
-	public void IsAuthorized(Event event){
-		String currentUsername = "";
-		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		if(principal instanceof UserDetails){
-			currentUsername = (((UserDetails) principal).getUsername());
-		}
-		else{
-			currentUsername = principal.toString();
-		}
-		String email = event.getFamilyAccount().getEmail();
-		logger.info("SoA:: event-->" + email);
-		if(email.equals(currentUsername)==false){
-			throw new AccessDeniedException("You are not authorized to access");
-		}
+		int count = eventService.delete(id);
+		return ResponseEntity.status(HttpStatus.OK).body("deleted = " + count + " row");
 	}
 }

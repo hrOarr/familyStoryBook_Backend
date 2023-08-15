@@ -8,8 +8,7 @@ import com.astrodust.familyStoryBook_backend.model.FamilyAccount;
 import com.astrodust.familyStoryBook_backend.security.JwtToken;
 import com.astrodust.familyStoryBook_backend.service.interfaces.FamilyService;
 import io.swagger.annotations.ApiOperation;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -29,38 +28,35 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.time.LocalDateTime;
 
+@Slf4j
 @RestController
 @RequestMapping(value = "/api/v1/auth")
 public class AuthController {
-    private static final Logger logger = LogManager.getLogger(AuthController.class);
-    private FamilyService familyService;
-    private PasswordEncoder passwordEncoder;
-    private ModelMapper modelMapper;
-    private AuthenticationManager authenticationManager;
+    private final FamilyService familyService;
+    private final PasswordEncoder passwordEncoder;
+    private final ModelMapper modelMapper;
+    private final AuthenticationManager authenticationManager;
 
     @Autowired
     @Qualifier(value = "userDetailsServiceImp")
     private UserDetailsService userDetailsService;
 
-    @Autowired
-    private JwtToken jwtToken;
+    private final JwtToken jwtToken;
 
     @Autowired
     public AuthController(FamilyService familyService, PasswordEncoder passwordEncoder,
-                          ModelMapper modelMapper, AuthenticationManager authenticationManager){
+                          ModelMapper modelMapper, AuthenticationManager authenticationManager,
+                          JwtToken jwtToken){
         this.familyService = familyService;
         this.passwordEncoder = passwordEncoder;
         this.modelMapper = modelMapper;
         this.authenticationManager = authenticationManager;
+        this.jwtToken = jwtToken;
     }
 
     @ApiOperation(value = "Family Login")
     @PostMapping(value = "/login")
     public ResponseEntity<?> login(@Valid @RequestBody FamilyLoginRequestDTO familyLoginRequestDTO) throws Exception {
-//        if(result.hasErrors()){
-//            List<String> errors = result.getAllErrors().stream().map(e -> e.getDefaultMessage()).collect(Collectors.toList());
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
-//        }
         // authentication
         String email = familyLoginRequestDTO.getEmail();
         authenticate(email, familyLoginRequestDTO.getPassword());
@@ -71,7 +67,7 @@ public class AuthController {
             account = familyService.getByEmail(email);
         }
         catch (Exception e){
-            logger.info("SoA:: Exception from login method------------->", e);
+            log.error("{}", e.getMessage(), e);
             throw new Exception("Something went wrong. Please try again");
         }
         FamilyLoginResponseDTO familyLoginResponseDTO = new FamilyLoginResponseDTO(account.getId(), account.getUsername(), account.getEmail(), token);
@@ -83,19 +79,19 @@ public class AuthController {
             Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
             SecurityContextHolder.getContext().setAuthentication(authentication);
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-            logger.info("email = " + userDetails.getUsername() + ", password = " + userDetails.getPassword());
-            logger.info("authorities = " + userDetails.getAuthorities());
+            log.info("email = " + userDetails.getUsername() + ", password = " + userDetails.getPassword());
+            log.info("authorities = " + userDetails.getAuthorities());
         }
         catch (DisabledException e){
-            logger.error("From authenticate method------User Disabled" + e.getMessage());
+            log.error("{}", e.getMessage(), e);
             throw new ValidationException("User Disabled");
         }
         catch (BadCredentialsException e){
-            logger.error("From authenticate method------Bad credentials" + e.getMessage());
+            log.error("{}", e.getMessage(), e);
             throw new ValidationException("Email or password is not correct");
         }
         catch (Exception e){
-            logger.info("SoA:: Exception from authenticate method---------->");
+            log.error("{}", e.getMessage(), e);
             throw new Exception("Something went wrong. Please try again");
         }
     }
@@ -108,19 +104,14 @@ public class AuthController {
             account = modelMapper.map(familyRegisterDTO, FamilyAccount.class);
             account.setPassword(passwordEncoder.encode(account.getPassword()));
             account.setCreatedDate(LocalDateTime.now());
-            logger.info("SoA:: before calling getByEmail--------------------->");
             FamilyAccount account1 = familyService.getByEmail(account.getEmail());
-            logger.info("SoA:: after calling getByEmail--------------------->");
             if(account1!=null){
-                logger.info("From register->method---------------");
                 throw new ValidationException("Email is already exists");
             }
             FamilyAccount account2 = familyService.getByUsername(account.getUsername());
             if(account2!=null){
-                logger.info("From register->method---------------");
                 throw new ValidationException("Username already exists");
             }
-            logger.info("SoA:: before calling save method-------------->");
             familyService.save(account);
 
             // authentication
@@ -131,18 +122,18 @@ public class AuthController {
                 account = familyService.getByEmail(familyRegisterDTO.getEmail());
             }
             catch (Exception e){
-                logger.info("SoA:: Exception from register method------------->", e);
+                log.error("{}", e.getMessage(), e);
                 throw new Exception("Something went wrong. Please try again");
             }
             FamilyLoginResponseDTO familyLoginResponseDTO = new FamilyLoginResponseDTO(account.getId(), account.getUsername(), account.getEmail(), token);
             return ResponseEntity.status(HttpStatus.OK).body(familyLoginResponseDTO);
         }
         catch (ValidationException e){
-            logger.info("SoA:: Validation failed");
+            log.error("{}", e.getMessage(), e);
             throw new ValidationException(e.getLocalizedMessage());
         }
         catch (Exception e) {
-            logger.info("SoA:: Exception from register method---------->");
+            log.error("{}", e.getMessage(), e);
             throw new Exception("Something went wrong. Please try again");
         }
     }

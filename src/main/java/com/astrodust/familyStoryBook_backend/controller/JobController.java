@@ -4,15 +4,14 @@ import com.astrodust.familyStoryBook_backend.dto.MemberInsertJobDTO;
 import com.astrodust.familyStoryBook_backend.dto.MemberUpdateJobDTO;
 import com.astrodust.familyStoryBook_backend.exception.AccessDeniedException;
 import com.astrodust.familyStoryBook_backend.exception.ResourceNotFoundException;
-import com.astrodust.familyStoryBook_backend.helpers.Converter;
+import com.astrodust.familyStoryBook_backend.mapper.JobMapper;
 import com.astrodust.familyStoryBook_backend.model.FamilyAccount;
 import com.astrodust.familyStoryBook_backend.model.MemberJob;
 import com.astrodust.familyStoryBook_backend.service.interfaces.FamilyService;
 import com.astrodust.familyStoryBook_backend.service.interfaces.JobService;
 import com.astrodust.familyStoryBook_backend.service.interfaces.MemberService;
 import io.swagger.annotations.ApiOperation;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,114 +22,62 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.List;
 
+@Slf4j
 @RestController
-@RequestMapping("/api/v1/member/job")
+@RequestMapping("/api/v1/members/{memberId}/jobs")
 public class JobController {
 
-    private static final Logger logger = LogManager.getLogger(JobController.class);
-    private JobService jobService;
-    private MemberService memberService;
-    private FamilyService familyService;
-    private Converter converter;
+    private final JobService jobService;
+    private final MemberService memberService;
+    private final FamilyService familyService;
+    private final JobMapper jobMapper;
 
     @Autowired
-    public JobController(JobService jobService, MemberService memberService, FamilyService familyService, Converter converter){
+    public JobController(JobService jobService, MemberService memberService, FamilyService familyService, JobMapper jobMapper){
         this.jobService = jobService;
         this.memberService = memberService;
         this.familyService = familyService;
-        this.converter = converter;
+        this.jobMapper = jobMapper;
     }
 
     @ApiOperation(value = "Get Job-list by MemberId")
-    @GetMapping(value = "/getAll/memberId/{memberId}/familyId/{familyId}")
-    public ResponseEntity<?> getByMemberId(@PathVariable(name = "memberId") int mid, @PathVariable(name = "familyId") int fid) throws Exception {
-        try {
-            // authorization check
-            IsAuthorized(fid, mid, 0);
-            return ResponseEntity.status(HttpStatus.OK).body(jobService.getByMemberId(mid));
-        }
-        catch (AccessDeniedException e){
-            throw new AccessDeniedException(e.getLocalizedMessage());
-        }
-        catch (Exception e){
-            logger.info("SoA:: exception from getByMemberId() method---------------->", e);
-            throw new Exception("Something went wrong. Please try again");
-        }
+    @GetMapping(value = "/")
+    public ResponseEntity<?> getByMemberId(@PathVariable(name = "memberId") int memberId) throws Exception {
+        return ResponseEntity.status(HttpStatus.OK).body(jobService.getByMemberId(memberId));
     }
 
     @ApiOperation(value = "Save Job-list")
-    @PostMapping(value = "/save/memberId/{memberId}/familyId/{familyId}")
+    @PostMapping(value = "/")
     public ResponseEntity<?> save(@Valid @RequestBody List<MemberInsertJobDTO> memberInsertJobDTO,
-                                  @PathVariable(name = "memberId") int mid, @PathVariable(name = "familyId") int fid) throws Exception {
-        try {
-            // authorization check
-            IsAuthorized(fid, mid, 0);
-            List<MemberJob> memberJobs = jobService.save(converter.memberInsertJobDTOtoMemberJob(memberInsertJobDTO, memberService.getById(mid)));
-            return ResponseEntity.status(HttpStatus.CREATED).body(memberJobs);
-        }
-        catch (AccessDeniedException e){
-            throw new AccessDeniedException(e.getLocalizedMessage());
-        }
-        catch (Exception e){
-            logger.info("SoA:: exception from save() method---------------->", e);
-            throw new Exception("Something went wrong. Please try again");
-        }
+                                  @PathVariable(name = "memberId") int memberId) throws Exception {
+        List<MemberJob> memberJobs = jobService.save(jobMapper.memberInsertJobDTOtoEntity(memberInsertJobDTO, memberService.getById(memberId)));
+        return ResponseEntity.status(HttpStatus.CREATED).body(memberJobs);
     }
 
-    @ApiOperation(value = "Get Job for update")
-    @GetMapping(value = "/edit/id/{id}/memberId/{memberId}/familyId/{familyId}")
-    public ResponseEntity<?> edit(@PathVariable(name = "id") int jid, @PathVariable(name = "memberId") int mid, @PathVariable(name = "familyId") int fid) throws Exception {
-        try {
-            // authorization check
-            IsAuthorized(fid, mid, jid);
-            MemberJob memberJob = jobService.getById(jid);
-            return ResponseEntity.status(HttpStatus.OK).body(memberJob);
-        }
-        catch (ResourceNotFoundException e){
-            throw new ResourceNotFoundException(e.getLocalizedMessage());
-        }
-        catch (AccessDeniedException e){
-            throw new AccessDeniedException(e.getLocalizedMessage());
-        }
-        catch (Exception e){
-            logger.info("SoA:: exception from edit() method---------------->", e);
-            throw new Exception("Something went wrong. Please try again");
-        }
+    @ApiOperation(value = "Get Job By Id")
+    @GetMapping(value = "/{id}")
+    public ResponseEntity<?> getById(@PathVariable(name = "id") int id,
+                                  @PathVariable(name = "memberId") int memberId) {
+        MemberJob memberJob = jobService.getById(id);
+        return ResponseEntity.status(HttpStatus.OK).body(memberJob);
     }
 
     @ApiOperation(value = "Update Job")
-    @PutMapping(value = "/update/id/{id}/memberId/{memberId}/familyId/{familyId}")
+    @PutMapping(value = "/{id}")
     public ResponseEntity<?> update(@Valid @RequestBody MemberUpdateJobDTO memberUpdateJobDTO,
-                                    @PathVariable(name = "id") int jid,
-                                    @PathVariable(name = "memberId") int mid, @PathVariable(name = "familyId") int fid) throws Exception {
-        try {
-            // authorization check
-            IsAuthorized(fid, mid, jid);
-            memberUpdateJobDTO.setId(jid);
-            MemberJob memberJob = jobService.update(converter.MemberUpdateJobDTOtoMemberJob(memberUpdateJobDTO, memberService.getById(mid)));
-            return ResponseEntity.status(HttpStatus.OK).body(memberJob);
-        }
-        catch (ResourceNotFoundException e){
-            throw new ResourceNotFoundException(e.getLocalizedMessage());
-        }
-        catch (AccessDeniedException e){
-            throw new AccessDeniedException(e.getLocalizedMessage());
-        }
-        catch (Exception e){
-            logger.info("SoA:: exception from update() method---------------->", e);
-            throw new Exception("Something went wrong. Please try again");
-        }
+                                    @PathVariable(name = "id") int id,
+                                    @PathVariable(name = "memberId") int memberId) throws Exception {
+        memberUpdateJobDTO.setId(id);
+        MemberJob memberJob = jobService.update(jobMapper.memberUpdateJobDTOtoEntity(memberUpdateJobDTO, memberService.getById(memberId)));
+        return ResponseEntity.status(HttpStatus.OK).body(memberJob);
     }
 
-    @ApiOperation(value = "Delete A Job")
-    @DeleteMapping(value = "/delete/id/{id}/memberId/{memberId}/familyId/{familyId}")
-    public ResponseEntity<?> delete( @PathVariable(name = "id") int jid,
-                                     @PathVariable(name = "memberId") int mid, @PathVariable(name = "familyId") int fid){
-        // authorization check
-        IsAuthorized(fid, mid, jid);
-        int cnt = jobService.delete(jid);
-        logger.info(cnt + " rows deleted");
-        return ResponseEntity.status(HttpStatus.OK).body(cnt+ " row(s) deleted");
+    @ApiOperation(value = "Delete Job By Id")
+    @DeleteMapping(value = "/{id}")
+    public ResponseEntity<?> delete( @PathVariable(name = "id") int id,
+                                     @PathVariable(name = "memberId") int memberId){
+        int count = jobService.delete(id);
+        return ResponseEntity.status(HttpStatus.OK).body(count+ " row(s) deleted");
     }
 
     public void IsAuthorized(int fid,int mid,int jid){
@@ -143,7 +90,6 @@ public class JobController {
         else{
             currentUsername = principal.toString();
         }
-        logger.info("SoA :: " + currentUsername);
         if(familyAccount==null || currentUsername.equals(familyAccount.getEmail())==false) {
             throw new AccessDeniedException("You are not authorized to access");
         }

@@ -1,79 +1,57 @@
 package com.astrodust.familyStoryBook_backend.controller;
 
-import java.time.LocalDateTime;
-
-import javax.validation.Valid;
-
+import com.astrodust.familyStoryBook_backend.dto.FamilyRegisterDTO;
 import com.astrodust.familyStoryBook_backend.exception.ResourceNotFoundException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.modelmapper.ModelMapper;
+import com.astrodust.familyStoryBook_backend.mapper.FamilyMapper;
+import com.astrodust.familyStoryBook_backend.model.FamilyAccount;
+import com.astrodust.familyStoryBook_backend.service.interfaces.FamilyService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.astrodust.familyStoryBook_backend.dto.FamilyRegisterDTO;
-import com.astrodust.familyStoryBook_backend.model.FamilyAccount;
-import com.astrodust.familyStoryBook_backend.service.interfaces.FamilyService;
+import javax.validation.Valid;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-
+@Slf4j
 @RestController
-@RequestMapping("/api/v1/family")
+@RequestMapping("/api/v1/families")
 @Api(value = "FamilyRestAPI")
 public class FamilyController {
-	
-	private static final Logger logger = LogManager.getLogger(FamilyController.class);
-	private ModelMapper modelMapper;
-	private FamilyService familyService;
+	private final FamilyService familyService;
+	private final FamilyMapper familyMapper;
 	
 	@Autowired
-	public FamilyController(FamilyService familyService, ModelMapper modelMapper) {
+	public FamilyController(FamilyService familyService, FamilyMapper familyMapper) {
 		this.familyService = familyService;
-		this.modelMapper = modelMapper;
+		this.familyMapper = familyMapper;
 	}
 	
-	@ApiOperation(value = "Get Single Family")
+	@ApiOperation(value = "Get Family By Id")
 	@GetMapping(value = "/{id}")
 	public ResponseEntity<?> getById(@PathVariable("id") int id) throws Exception {
-		try {
-			FamilyAccount account = familyService.getById(id);
-			if (account == null) {
-				throw new ResourceNotFoundException("Resource Not Found");
-			}
-			return ResponseEntity.ok(account);
+		FamilyAccount account = familyService.getById(id);
+		if (account == null) {
+			throw new ResourceNotFoundException("Resource Not Found");
 		}
-		catch (ResourceNotFoundException e){
-			throw new ResourceNotFoundException(e.getLocalizedMessage());
-		}
-		catch (Exception e){
-			logger.info("SoA:: exception from getById() method---------------->", e);
-			throw new Exception("Something went wrong. Please try again");
-		}
+		return ResponseEntity.status(HttpStatus.OK).body(account);
 	}
 	
 	@ApiOperation(value = "Save New Family")
-	@PostMapping(value = "/add", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@PostMapping(value = "/", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> save(@Valid @RequestBody FamilyRegisterDTO familyRegisterDTO) throws Exception {
-		logger.info("Family Account save() method started->>>>>>");
-		FamilyAccount account = modelMapper.map(familyRegisterDTO, FamilyAccount.class);
-		account.setCreatedDate(LocalDateTime.now());
-		try {
-			familyService.save(account);
-		} catch (Exception e) {
-			logger.info("SoA:: exception from save() method---------------->", e);
-			throw new Exception("Something went wrong. Please try again");
-		}
-		return ResponseEntity.ok(familyRegisterDTO);
+		FamilyAccount familyAccount = familyMapper.toEntity(familyRegisterDTO);
+		familyService.save(familyAccount);
+		return ResponseEntity.ok(familyAccount);
 	}
 
 	@ApiOperation(value = "Delete Family By Id")
-	@DeleteMapping(value = "/delete/{id}")
+	@DeleteMapping(value = "/{id}")
 	public ResponseEntity<?> deleteById(@PathVariable("id") int id){
-		int cnt = familyService.deleteById(id);
-		return ResponseEntity.status(HttpStatus.OK).body(cnt + " row(s) are deleted");
+		int count = familyService.deleteById(id);
+		return ResponseEntity.status(HttpStatus.OK).body(count + " row(s) are deleted");
 	}
 }

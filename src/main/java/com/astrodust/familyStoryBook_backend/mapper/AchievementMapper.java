@@ -3,7 +3,7 @@ package com.astrodust.familyStoryBook_backend.mapper;
 import com.astrodust.familyStoryBook_backend.dto.AchievementDTO;
 import com.astrodust.familyStoryBook_backend.dto.InsertAchievementDTO;
 import com.astrodust.familyStoryBook_backend.dto.UpdateAchievementDTO;
-import com.astrodust.familyStoryBook_backend.helpers.ImageCompressionDecom;
+import com.astrodust.familyStoryBook_backend.utils.ImageCompressionDecom;
 import com.astrodust.familyStoryBook_backend.model.Achievement;
 import com.astrodust.familyStoryBook_backend.model.ImageModel;
 import com.astrodust.familyStoryBook_backend.model.MemberAccount;

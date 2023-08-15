@@ -1,4 +1,4 @@
-package com.astrodust.familyStoryBook_backend.helpers;
+package com.astrodust.familyStoryBook_backend.utils;
 
 import org.springframework.stereotype.Component;
 

@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.astrodust.familyStoryBook_backend.dao.interfaces.MemberDao;
-import com.astrodust.familyStoryBook_backend.helpers.Converter;
 import com.astrodust.familyStoryBook_backend.model.MemberAccount;
 
 @Service
@@ -16,7 +15,7 @@ public class MemberServiceImp implements MemberService {
 	private MemberDao memberDao;
 	
 	@Autowired
-	public MemberServiceImp(MemberDao memberDao, Converter converter) {
+	public MemberServiceImp(MemberDao memberDao) {
 		this.memberDao = memberDao;
 	}
 	
