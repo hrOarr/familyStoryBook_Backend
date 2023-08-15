@@ -6,6 +6,7 @@ import com.astrodust.familyStoryBook_backend.model.FileModel;
 import com.astrodust.familyStoryBook_backend.model.MiscellaneousDocument;
 import com.astrodust.familyStoryBook_backend.service.interfaces.DocumentService;
 import com.astrodust.familyStoryBook_backend.service.interfaces.FamilyService;
+import com.astrodust.familyStoryBook_backend.utils.AuthenticatedUser;
 import com.astrodust.familyStoryBook_backend.utils.ImageCompressionDecom;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -15,8 +16,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -29,11 +28,13 @@ import java.util.List;
 public class DocumentController {
     private final DocumentService documentService;
     private final FamilyService familyService;
+    private final AuthenticatedUser authenticatedUser;
 
     @Autowired
-    public DocumentController(DocumentService documentService, FamilyService familyService){
+    public DocumentController(DocumentService documentService, FamilyService familyService, AuthenticatedUser authenticatedUser){
         this.documentService = documentService;
         this.familyService = familyService;
+        this.authenticatedUser = authenticatedUser;
     }
 
     @ApiOperation(value = "Get All by Family-Id")
@@ -47,8 +48,7 @@ public class DocumentController {
     @PostMapping(value = "/", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
     public ResponseEntity<?> save(@RequestParam("data") String data, @RequestPart(name = "images", required = false) List<MultipartFile> images,
                                   @RequestPart(name = "files", required = false) List<MultipartFile> files) throws Exception {
-        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        FamilyAccount familyAccount = familyService.getByEmail(userDetails.getUsername());
+        FamilyAccount familyAccount = authenticatedUser.get();
         documentService.save(data, images, files, familyAccount);
         return ResponseEntity.status(HttpStatus.OK).body("Successful");
     }

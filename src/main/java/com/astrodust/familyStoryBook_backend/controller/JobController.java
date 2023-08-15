@@ -2,10 +2,7 @@ package com.astrodust.familyStoryBook_backend.controller;
 
 import com.astrodust.familyStoryBook_backend.dto.MemberInsertJobDTO;
 import com.astrodust.familyStoryBook_backend.dto.MemberUpdateJobDTO;
-import com.astrodust.familyStoryBook_backend.exception.AccessDeniedException;
-import com.astrodust.familyStoryBook_backend.exception.ResourceNotFoundException;
 import com.astrodust.familyStoryBook_backend.mapper.JobMapper;
-import com.astrodust.familyStoryBook_backend.model.FamilyAccount;
 import com.astrodust.familyStoryBook_backend.model.MemberJob;
 import com.astrodust.familyStoryBook_backend.service.interfaces.FamilyService;
 import com.astrodust.familyStoryBook_backend.service.interfaces.JobService;
@@ -15,8 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -78,30 +73,5 @@ public class JobController {
                                      @PathVariable(name = "memberId") int memberId){
         int count = jobService.delete(id);
         return ResponseEntity.status(HttpStatus.OK).body(count+ " row(s) deleted");
-    }
-
-    public void IsAuthorized(int fid,int mid,int jid){
-        String currentUsername = "";
-        FamilyAccount familyAccount = familyService.getById(fid);
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if(principal instanceof UserDetails){
-            currentUsername = (((UserDetails) principal).getUsername());
-        }
-        else{
-            currentUsername = principal.toString();
-        }
-        if(familyAccount==null || currentUsername.equals(familyAccount.getEmail())==false) {
-            throw new AccessDeniedException("You are not authorized to access");
-        }
-
-        if(jid!=0){
-            MemberJob memberJob = jobService.getById(jid);
-            if(memberJob == null) {
-                throw new ResourceNotFoundException("Resource Not Found");
-            }
-            if(memberJob.getMemberAccount().getId()!=mid){
-                throw new AccessDeniedException("You are not authorized to access");
-            }
-        }
     }
 }
