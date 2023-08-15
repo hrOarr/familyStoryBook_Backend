@@ -1,5 +1,6 @@
 package com.astrodust.familyStoryBook_backend.dao;
 
+import com.astrodust.familyStoryBook_backend.dao.interfaces.DocumentDao;
 import com.astrodust.familyStoryBook_backend.model.FileModel;
 import com.astrodust.familyStoryBook_backend.model.MiscellaneousDocument;
 import org.hibernate.Session;
@@ -13,7 +14,7 @@ import java.util.List;
 
 @Repository
 @Transactional
-public class DocumentDaoImp implements DocumentDao{
+public class DocumentDaoImp implements DocumentDao {
 
     private SessionFactory sessionFactory;
 

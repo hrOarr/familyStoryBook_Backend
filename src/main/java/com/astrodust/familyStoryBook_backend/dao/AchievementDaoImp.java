@@ -1,5 +1,6 @@
 package com.astrodust.familyStoryBook_backend.dao;
 
+import com.astrodust.familyStoryBook_backend.dao.interfaces.AchievementDao;
 import com.astrodust.familyStoryBook_backend.model.Achievement;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -12,7 +13,7 @@ import java.util.List;
 
 @Repository
 @Transactional
-public class AchievementDaoImp implements  AchievementDao{
+public class AchievementDaoImp implements AchievementDao {
 
     private SessionFactory sessionFactory;
 

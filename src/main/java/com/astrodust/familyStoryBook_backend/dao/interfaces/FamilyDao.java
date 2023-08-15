@@ -1,4 +1,4 @@
-package com.astrodust.familyStoryBook_backend.dao;
+package com.astrodust.familyStoryBook_backend.dao.interfaces;
 
 import com.astrodust.familyStoryBook_backend.model.FamilyAccount;
 

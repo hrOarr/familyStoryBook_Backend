@@ -1,4 +1,4 @@
-package com.astrodust.familyStoryBook_backend.service;
+package com.astrodust.familyStoryBook_backend.service.interfaces;
 
 import com.astrodust.familyStoryBook_backend.model.FamilyAccount;
 

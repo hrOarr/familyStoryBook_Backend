@@ -5,19 +5,15 @@ import com.astrodust.familyStoryBook_backend.dto.InsertAchievementDTO;
 import com.astrodust.familyStoryBook_backend.dto.UpdateAchievementDTO;
 import com.astrodust.familyStoryBook_backend.exception.AccessDeniedException;
 import com.astrodust.familyStoryBook_backend.exception.ResourceNotFoundException;
-import com.astrodust.familyStoryBook_backend.helpers.Converter;
+import com.astrodust.familyStoryBook_backend.mapper.AchievementMapper;
 import com.astrodust.familyStoryBook_backend.model.Achievement;
 import com.astrodust.familyStoryBook_backend.model.FamilyAccount;
-import com.astrodust.familyStoryBook_backend.model.MemberAccount;
-import com.astrodust.familyStoryBook_backend.service.AchievementService;
-import com.astrodust.familyStoryBook_backend.service.FamilyService;
-import com.astrodust.familyStoryBook_backend.service.MemberService;
+import com.astrodust.familyStoryBook_backend.service.interfaces.AchievementService;
+import com.astrodust.familyStoryBook_backend.service.interfaces.FamilyService;
+import com.astrodust.familyStoryBook_backend.service.interfaces.MemberService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiOperation;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -26,140 +22,73 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @RestController
-@RequestMapping("/api/v1/member/achievement")
+@RequestMapping("/api/v1/members/{memberId}/achievements")
 public class AchievementController {
-    private static final Logger logger = LogManager.getLogger(AchievementController.class);
-    private ModelMapper modelMapper;
-    private Converter converter;
-    private AchievementService achievementService;
-    private MemberService memberService;
-    private FamilyService familyService;
+    private final AchievementService achievementService;
+    private final MemberService memberService;
+    private final FamilyService familyService;
+    private final AchievementMapper achievementMapper;
 
-    @Autowired
-    public AchievementController(Converter converter, ModelMapper modelMapper, AchievementService achievementService, MemberService memberService, FamilyService familyService){
-        this.converter = converter;
-        this.modelMapper = modelMapper;
+    public AchievementController(AchievementService achievementService, MemberService memberService, FamilyService familyService, AchievementMapper achievementMapper){
         this.achievementService = achievementService;
         this.memberService = memberService;
         this.familyService = familyService;
+        this.achievementMapper = achievementMapper;
     }
 
-    @ApiOperation(value = "Save Achievement List")
-    @PostMapping(value = "/save/memberId/{memberId}/familyId/{familyId}", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
-    public ResponseEntity<?> save(@RequestParam("data") String str, @RequestPart(name = "image", required = false) MultipartFile image,
-                                  @PathVariable(name = "memberId") int mid, @PathVariable(name = "familyId") int fid) throws Exception {
-        try {
-            // authorization check
-            IsAuthorized(fid, mid, 0);
-            InsertAchievementDTO insertAchievementDTO = new ObjectMapper().readValue(str, InsertAchievementDTO.class);
-            insertAchievementDTO.setImage(image);
-            logger.info(insertAchievementDTO);
-            List<Achievement> achievements = achievementService.save(converter.InsertAchievementDTOtoAchievement(insertAchievementDTO, memberService.getById(mid)));
-            return ResponseEntity.status(HttpStatus.CREATED).body(achievements);
-        }
-        catch (AccessDeniedException e){
-            throw new AccessDeniedException(e.getLocalizedMessage());
-        }
-        catch (Exception e){
-            logger.info("SoA:: exception from save() method---------------->", e);
-            throw new Exception("Something went wrong. Please try again");
-        }
+    @ApiOperation(value = "Save Achievement")
+    @PostMapping(value = "/", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+    public ResponseEntity<?> save(@RequestParam("data") String str,
+                                  @RequestPart(name = "image", required = false) MultipartFile image,
+                                  @PathVariable(name = "memberId") int memberId) throws Exception {
+        InsertAchievementDTO insertAchievementDTO = new ObjectMapper().readValue(str, InsertAchievementDTO.class);
+        insertAchievementDTO.setImage(image);
+        log.info("{}", insertAchievementDTO);
+        List<AchievementDTO> achievementDTOS = achievementService.save(insertAchievementDTO, memberId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(achievementDTOS);
     }
 
     @ApiOperation(value = "Get All by Member-Id")
-    @GetMapping(value = "/getAll/memberId/{memberId}/familyId/{familyId}")
-    public ResponseEntity<?> getByMemberId(@PathVariable(name = "memberId") int mid, @PathVariable(name = "familyId") int fid) throws Exception {
-        try {
-            // authorization check
-            IsAuthorized(fid, mid, 0);
-            List<Achievement> achievements = achievementService.getAllByMemberId(mid);
-            List<AchievementDTO> achievementDTOS = new ArrayList<>();
-            for (Achievement achievement : achievements) {
-                achievementDTOS.add(converter.achievementToAchievementDTO(achievement));
-            }
-            return ResponseEntity.status(HttpStatus.OK).body(achievementDTOS);
-        }
-        catch (AccessDeniedException e){
-            throw new AccessDeniedException(e.getLocalizedMessage());
-        }
-        catch (Exception e){
-            logger.info("SoA:: exception from getByMemberId() method---------------->", e);
-            throw new Exception("Something went wrong. Please try again");
-        }
+    @GetMapping(value = "/")
+    public ResponseEntity<?> findByMemberId(@PathVariable(name = "memberId") int memberId) {
+        List<AchievementDTO> achievementDTOS = achievementService.getAllByMemberId(memberId);
+        return ResponseEntity.status(HttpStatus.OK).body(achievementDTOS);
     }
 
-    @ApiOperation(value = "Get Single One")
-    @GetMapping(value = "/edit/id/{id}/memberId/{memberId}/familyId/{familyId}")
-    public ResponseEntity<?> edit(@PathVariable(name = "id") int id, @PathVariable(name = "memberId") int mid,
-                                  @PathVariable(name = "familyId") int fid) throws Exception {
-
-        try {
-            // authorization check
-            IsAuthorized(fid, mid, id);
-            Achievement achievement = achievementService.getById(id);
-            return ResponseEntity.status(HttpStatus.OK).body(converter.achievementToAchievementDTO(achievement));
+    @ApiOperation(value = "Get Achievement By Id")
+    @GetMapping(value = "/{id}")
+    public ResponseEntity<?> findById(@PathVariable(name = "id") int id,
+                                      @PathVariable(name = "memberId") int memberId) {
+        Achievement achievement = achievementService.getById(id);
+        if(achievement==null){
+            throw new ResourceNotFoundException("Resource not found with id = " + id);
         }
-        catch (ResourceNotFoundException e){
-            throw new ResourceNotFoundException(e.getLocalizedMessage());
-        }
-        catch (AccessDeniedException e){
-            throw new AccessDeniedException(e.getLocalizedMessage());
-        }
-        catch (Exception e){
-            logger.info("SoA:: exception from edit() method---------------->", e);
-            throw new Exception("Something went wrong. Please try again");
-        }
+        return ResponseEntity.status(HttpStatus.OK).body(achievementMapper.toDto(achievement));
     }
 
-    @ApiOperation(value = "Update Single One")
-    @PostMapping(value = "/update/id/{id}/memberId/{memberId}/familyId/{familyId}", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
-    public ResponseEntity<?> update(@RequestParam("data") String str, @RequestPart(name = "image", required = false) MultipartFile image,
-                                    @PathVariable(name = "id") int id,@PathVariable(name = "memberId") int mid, @PathVariable(name = "familyId") int fid) throws Exception {
-        try {
-            // authorization check
-            IsAuthorized(fid, mid, id);
-            UpdateAchievementDTO updateAchievementDTO = new ObjectMapper().readValue(str, UpdateAchievementDTO.class);
-            updateAchievementDTO.setId(id);
-            updateAchievementDTO.setImage(image);
-            MemberAccount memberAccount = memberService.getById(mid);
-            Achievement achievement = achievementService.update(converter.updateAchievementDTOtoAchievement(updateAchievementDTO, memberAccount));
-            return ResponseEntity.status(HttpStatus.OK).body(achievement);
-        }
-        catch (ResourceNotFoundException e){
-            throw new ResourceNotFoundException(e.getLocalizedMessage());
-        }
-        catch (AccessDeniedException e){
-            throw new AccessDeniedException(e.getLocalizedMessage());
-        }
-        catch (Exception e){
-            logger.info("SoA:: exception from update() method---------------->", e);
-            throw new Exception("Something went wrong. Please try again");
-        }
+    @ApiOperation(value = "Update Achievement")
+    @PutMapping(value = "/{id}", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+    public ResponseEntity<?> update(@RequestParam("data") String str,
+                                    @RequestPart(name = "image", required = false) MultipartFile image,
+                                    @PathVariable(name = "id") int id,
+                                    @PathVariable(name = "memberId") int memberId) throws Exception {
+        UpdateAchievementDTO updateAchievementDTO = new ObjectMapper().readValue(str, UpdateAchievementDTO.class);
+        updateAchievementDTO.setId(id);
+        updateAchievementDTO.setImage(image);
+        AchievementDTO achievementDTO = achievementService.update(updateAchievementDTO, memberId);
+        return ResponseEntity.status(HttpStatus.OK).body(achievementDTO);
     }
 
-    @ApiOperation(value = "Delete Single One")
-    @DeleteMapping(value = "/delete/id/{id}/memberId/{memberId}/familyId/{familyId}")
-    public ResponseEntity<?> delete(@PathVariable(name = "id") int id,@PathVariable(name = "memberId") int mid, @PathVariable(name = "familyId") int fid) throws Exception {
-        try {
-            // authorization check
-            IsAuthorized(fid, mid, id);
-            int cnt = achievementService.delete(id);
-            return ResponseEntity.status(HttpStatus.OK).body(cnt + " row(s) deleted");
-        }
-        catch (ResourceNotFoundException e){
-            throw new ResourceNotFoundException(e.getLocalizedMessage());
-        }
-        catch (AccessDeniedException e){
-            throw new AccessDeniedException(e.getLocalizedMessage());
-        }
-        catch (Exception e){
-            logger.info("SoA:: exception from delete() method---------------->", e);
-            throw new Exception("Something went wrong. Please try again");
-        }
+    @ApiOperation(value = "Delete Achievement")
+    @DeleteMapping(value = "/{id}")
+    public ResponseEntity<?> delete(@PathVariable(name = "id") int id,
+                                    @PathVariable(name = "memberId") int memberId) throws Exception {
+        int count = achievementService.delete(id);
+        return ResponseEntity.status(HttpStatus.OK).body(count + " row(s) deleted");
     }
 
     public void IsAuthorized(int fid,int mid,int aid){
@@ -172,8 +101,8 @@ public class AchievementController {
         else{
             currentUsername = principal.toString();
         }
-        logger.info("SoA :: " + currentUsername);
-        if(familyAccount==null || currentUsername.equals(familyAccount.getEmail())==false) {
+        log.info("Username: {}", currentUsername);
+        if(familyAccount==null || !currentUsername.equals(familyAccount.getEmail())) {
             throw new AccessDeniedException("You are not authorized to access");
         }
 

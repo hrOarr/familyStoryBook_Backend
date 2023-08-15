@@ -6,7 +6,7 @@ import com.astrodust.familyStoryBook_backend.dto.FamilyRegisterDTO;
 import com.astrodust.familyStoryBook_backend.exception.ValidationException;
 import com.astrodust.familyStoryBook_backend.model.FamilyAccount;
 import com.astrodust.familyStoryBook_backend.security.JwtToken;
-import com.astrodust.familyStoryBook_backend.service.FamilyService;
+import com.astrodust.familyStoryBook_backend.service.interfaces.FamilyService;
 import io.swagger.annotations.ApiOperation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

@@ -1,10 +1,10 @@
-package com.astrodust.familyStoryBook_backend.service;
+package com.astrodust.familyStoryBook_backend.dao.interfaces;
 
 import java.util.List;
 
 import com.astrodust.familyStoryBook_backend.model.MemberAccount;
 
-public interface MemberService {
+public interface MemberDao {
 	public void save(MemberAccount account);
 	public void update(MemberAccount account);
 	public MemberAccount getById(int id);

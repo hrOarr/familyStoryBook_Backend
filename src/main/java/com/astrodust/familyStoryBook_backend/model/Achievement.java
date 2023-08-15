@@ -1,16 +1,10 @@
 package com.astrodust.familyStoryBook_backend.model;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Calendar;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.*;
 
 import javax.persistence.*;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "Achievement")
@@ -18,6 +12,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Achievement {
 	
 	// properties
@@ -33,10 +28,10 @@ public class Achievement {
 	private String description;
 	
 	@Column(name = "addedDate")
-	private LocalDate addedDate;
+	private LocalDateTime addedDate;
 	
 	@Column(name = "updatedDate")
-	private LocalDate updatedDate;
+	private LocalDateTime updatedDate;
 	
 	// relationship
 	

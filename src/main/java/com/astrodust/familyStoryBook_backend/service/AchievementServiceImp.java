@@ -1,35 +1,49 @@
 package com.astrodust.familyStoryBook_backend.service;
 
-import com.astrodust.familyStoryBook_backend.dao.AchievementDao;
+import com.astrodust.familyStoryBook_backend.dao.interfaces.AchievementDao;
+import com.astrodust.familyStoryBook_backend.dto.AchievementDTO;
+import com.astrodust.familyStoryBook_backend.dto.InsertAchievementDTO;
+import com.astrodust.familyStoryBook_backend.dto.UpdateAchievementDTO;
+import com.astrodust.familyStoryBook_backend.mapper.AchievementMapper;
 import com.astrodust.familyStoryBook_backend.model.Achievement;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.astrodust.familyStoryBook_backend.model.MemberAccount;
+import com.astrodust.familyStoryBook_backend.service.interfaces.AchievementService;
+import com.astrodust.familyStoryBook_backend.service.interfaces.MemberService;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class AchievementServiceImp implements AchievementService{
+public class AchievementServiceImp implements AchievementService {
 
-    private AchievementDao achievementDao;
+    private final AchievementDao achievementDao;
+    private final AchievementMapper achievementMapper;
+    private final MemberService memberService;
 
-    @Autowired
-    public AchievementServiceImp(AchievementDao achievementDao){
+    public AchievementServiceImp(AchievementDao achievementDao, AchievementMapper achievementMapper, MemberService memberService){
         this.achievementDao = achievementDao;
+        this.achievementMapper = achievementMapper;
+        this.memberService = memberService;
     }
 
     @Override
-    public List<Achievement> save(List<Achievement> achievements) {
-        List<Achievement> achievementList = new ArrayList<>();
+    public List<AchievementDTO> save(InsertAchievementDTO insertAchievementDTO, int memberId) throws IOException {
+        List<Achievement> achievements = achievementMapper.toEntity(insertAchievementDTO, memberService.getById(memberId));
+        List<AchievementDTO> achievementDTOS = new ArrayList<>();
         for(Achievement achievement:achievements){
-            achievementList.add(achievementDao.save(achievement));
+            achievement = achievementDao.save(achievement);
+            achievementDTOS.add(achievementMapper.toDto(achievement));
         }
-        return achievementList;
+        return achievementDTOS;
     }
 
     @Override
-    public Achievement update(Achievement achievement) {
-        return achievementDao.update(achievement);
+    public AchievementDTO update(UpdateAchievementDTO updateAchievementDTO, int memberId) throws IOException {
+        MemberAccount memberAccount = memberService.getById(memberId);
+        Achievement achievement = achievementMapper.updateAchievementDTOtoEntity(updateAchievementDTO, memberAccount);
+        return achievementMapper.toDto(achievementDao.update(achievement));
     }
 
     @Override
@@ -48,7 +62,8 @@ public class AchievementServiceImp implements AchievementService{
     }
 
     @Override
-    public List<Achievement> getAllByMemberId(int memberId) {
-        return achievementDao.getAllByMemberId(memberId);
+    public List<AchievementDTO> getAllByMemberId(int memberId) {
+        List<Achievement> achievements = achievementDao.getAllByMemberId(memberId);
+        return achievementMapper.toDto(achievements);
     }
 }

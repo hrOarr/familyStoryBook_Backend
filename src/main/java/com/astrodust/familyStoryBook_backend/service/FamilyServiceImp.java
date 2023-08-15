@@ -1,9 +1,10 @@
 package com.astrodust.familyStoryBook_backend.service;
 
+import com.astrodust.familyStoryBook_backend.service.interfaces.FamilyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.astrodust.familyStoryBook_backend.dao.FamilyDao;
+import com.astrodust.familyStoryBook_backend.dao.interfaces.FamilyDao;
 import com.astrodust.familyStoryBook_backend.model.FamilyAccount;
 
 @Service

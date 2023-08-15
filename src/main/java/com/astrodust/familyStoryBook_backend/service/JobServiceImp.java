@@ -1,7 +1,8 @@
 package com.astrodust.familyStoryBook_backend.service;
 
-import com.astrodust.familyStoryBook_backend.dao.JobDao;
+import com.astrodust.familyStoryBook_backend.dao.interfaces.JobDao;
 import com.astrodust.familyStoryBook_backend.model.MemberJob;
+import com.astrodust.familyStoryBook_backend.service.interfaces.JobService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -9,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class JobServiceImp implements JobService{
+public class JobServiceImp implements JobService {
 
     private JobDao jobDao;
 

@@ -6,7 +6,7 @@ import com.astrodust.familyStoryBook_backend.exception.AccessDeniedException;
 import com.astrodust.familyStoryBook_backend.exception.ResourceNotFoundException;
 import com.astrodust.familyStoryBook_backend.model.FamilyAccount;
 import com.astrodust.familyStoryBook_backend.model.MemberEducation;
-import com.astrodust.familyStoryBook_backend.service.FamilyService;
+import com.astrodust.familyStoryBook_backend.service.interfaces.FamilyService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +17,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import com.astrodust.familyStoryBook_backend.helpers.Converter;
-import com.astrodust.familyStoryBook_backend.service.EducationService;
-import com.astrodust.familyStoryBook_backend.service.MemberService;
+import com.astrodust.familyStoryBook_backend.service.interfaces.EducationService;
+import com.astrodust.familyStoryBook_backend.service.interfaces.MemberService;
 
 import io.swagger.annotations.ApiOperation;
 

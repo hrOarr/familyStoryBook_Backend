@@ -4,7 +4,6 @@ import javax.validation.Valid;
 
 import com.astrodust.familyStoryBook_backend.exception.AccessDeniedException;
 import com.astrodust.familyStoryBook_backend.exception.ResourceNotFoundException;
-import com.astrodust.familyStoryBook_backend.model.Event;
 import com.astrodust.familyStoryBook_backend.model.FamilyAccount;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,8 +19,8 @@ import com.astrodust.familyStoryBook_backend.dto.MemberDTO;
 import com.astrodust.familyStoryBook_backend.dto.MemberInfoGeneralDTO;
 import com.astrodust.familyStoryBook_backend.helpers.Converter;
 import com.astrodust.familyStoryBook_backend.model.MemberAccount;
-import com.astrodust.familyStoryBook_backend.service.FamilyService;
-import com.astrodust.familyStoryBook_backend.service.MemberService;
+import com.astrodust.familyStoryBook_backend.service.interfaces.FamilyService;
+import com.astrodust.familyStoryBook_backend.service.interfaces.MemberService;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

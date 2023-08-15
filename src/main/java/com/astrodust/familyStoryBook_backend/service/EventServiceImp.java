@@ -2,10 +2,11 @@ package com.astrodust.familyStoryBook_backend.service;
 
 import java.util.List;
 
+import com.astrodust.familyStoryBook_backend.service.interfaces.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.astrodust.familyStoryBook_backend.dao.EventDao;
+import com.astrodust.familyStoryBook_backend.dao.interfaces.EventDao;
 import com.astrodust.familyStoryBook_backend.model.Event;
 
 @Service

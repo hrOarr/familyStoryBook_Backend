@@ -1,15 +1,16 @@
 package com.astrodust.familyStoryBook_backend.service;
 
-import com.astrodust.familyStoryBook_backend.dao.DocumentDao;
+import com.astrodust.familyStoryBook_backend.dao.interfaces.DocumentDao;
 import com.astrodust.familyStoryBook_backend.model.FileModel;
 import com.astrodust.familyStoryBook_backend.model.MiscellaneousDocument;
+import com.astrodust.familyStoryBook_backend.service.interfaces.DocumentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-public class DocumentServiceImp implements DocumentService{
+public class DocumentServiceImp implements DocumentService {
 
     private DocumentDao documentDao;
 

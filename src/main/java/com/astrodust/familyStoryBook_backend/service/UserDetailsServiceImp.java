@@ -1,6 +1,7 @@
 package com.astrodust.familyStoryBook_backend.service;
 
 import com.astrodust.familyStoryBook_backend.model.FamilyAccount;
+import com.astrodust.familyStoryBook_backend.service.interfaces.FamilyService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,5 +1,6 @@
 package com.astrodust.familyStoryBook_backend.dao;
 
+import com.astrodust.familyStoryBook_backend.dao.interfaces.JobDao;
 import com.astrodust.familyStoryBook_backend.model.MemberJob;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;

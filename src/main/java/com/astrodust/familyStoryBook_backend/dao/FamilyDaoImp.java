@@ -5,6 +5,7 @@ import java.util.List;
 import javax.persistence.Query;
 import javax.transaction.Transactional;
 
+import com.astrodust.familyStoryBook_backend.dao.interfaces.FamilyDao;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;

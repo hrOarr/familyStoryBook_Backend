@@ -1,11 +1,11 @@
-package com.astrodust.familyStoryBook_backend.service;
+package com.astrodust.familyStoryBook_backend.dao.interfaces;
 
 import com.astrodust.familyStoryBook_backend.model.FileModel;
 import com.astrodust.familyStoryBook_backend.model.MiscellaneousDocument;
 
 import java.util.List;
 
-public interface DocumentService {
+public interface DocumentDao {
     public void save(MiscellaneousDocument miscellaneousDocument);
     public void update(MiscellaneousDocument miscellaneousDocument);
     public int delete(int id);

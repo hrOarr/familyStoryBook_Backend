@@ -7,9 +7,9 @@ import com.astrodust.familyStoryBook_backend.exception.ResourceNotFoundException
 import com.astrodust.familyStoryBook_backend.helpers.Converter;
 import com.astrodust.familyStoryBook_backend.model.FamilyAccount;
 import com.astrodust.familyStoryBook_backend.model.MemberJob;
-import com.astrodust.familyStoryBook_backend.service.FamilyService;
-import com.astrodust.familyStoryBook_backend.service.JobService;
-import com.astrodust.familyStoryBook_backend.service.MemberService;
+import com.astrodust.familyStoryBook_backend.service.interfaces.FamilyService;
+import com.astrodust.familyStoryBook_backend.service.interfaces.JobService;
+import com.astrodust.familyStoryBook_backend.service.interfaces.MemberService;
 import io.swagger.annotations.ApiOperation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

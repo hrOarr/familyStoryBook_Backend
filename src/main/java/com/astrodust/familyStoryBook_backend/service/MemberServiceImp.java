@@ -2,10 +2,11 @@ package com.astrodust.familyStoryBook_backend.service;
 
 import java.util.List;
 
+import com.astrodust.familyStoryBook_backend.service.interfaces.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.astrodust.familyStoryBook_backend.dao.MemberDao;
+import com.astrodust.familyStoryBook_backend.dao.interfaces.MemberDao;
 import com.astrodust.familyStoryBook_backend.helpers.Converter;
 import com.astrodust.familyStoryBook_backend.model.MemberAccount;
 

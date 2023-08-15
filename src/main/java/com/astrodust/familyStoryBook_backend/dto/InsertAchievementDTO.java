@@ -13,16 +13,12 @@ public class InsertAchievementDTO {
 
     @ApiModelProperty(value = "id")
     private int id;
-    //private List<Integer> id = new ArrayList<>();
 
     @NotEmpty(message = "Title is required")
     private String title;
-    //private List<String> title = new ArrayList<>();
 
     @NotEmpty(message = "Description is required")
     private String description;
-    //private List<String> description = new ArrayList<>();
 
     private MultipartFile image;
-    //private List<MultipartFile> image = new ArrayList<>();
 }

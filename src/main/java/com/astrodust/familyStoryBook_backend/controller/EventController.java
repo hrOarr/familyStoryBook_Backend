@@ -19,8 +19,8 @@ import org.springframework.web.bind.annotation.*;
 import com.astrodust.familyStoryBook_backend.dto.EventDTO;
 import com.astrodust.familyStoryBook_backend.helpers.Converter;
 import com.astrodust.familyStoryBook_backend.model.Event;
-import com.astrodust.familyStoryBook_backend.service.EventService;
-import com.astrodust.familyStoryBook_backend.service.FamilyService;
+import com.astrodust.familyStoryBook_backend.service.interfaces.EventService;
+import com.astrodust.familyStoryBook_backend.service.interfaces.FamilyService;
 
 import io.swagger.annotations.ApiOperation;
 

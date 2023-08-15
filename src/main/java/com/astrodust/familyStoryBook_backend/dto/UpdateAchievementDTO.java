@@ -6,6 +6,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotEmpty;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 public class UpdateAchievementDTO {
@@ -20,5 +21,5 @@ public class UpdateAchievementDTO {
     private String description;
     private MultipartFile image;
     private int image_id;
-    private LocalDate addedDate;
+    private LocalDateTime addedDate;
 }
